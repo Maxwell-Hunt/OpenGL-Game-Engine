@@ -14,12 +14,76 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
 
-void processInput(GLFWwindow* window) {
+void handleExit(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
 }
+
+void handleMovement(GLFWwindow* window, Camera& camera, double deltaTime) {
+    float speed = 10 * deltaTime;
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camera.position += camera.forward * speed;
+    }
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera.position -= camera.forward * speed;
+    }
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera.position += camera.getRight() * speed;
+    }
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera.position -= camera.getRight() * speed;
+    }
+}
+
+class MouseHandler {
+public:
+    Camera* camera;
+    float lastX = 400.0f;
+    float lastY = 300.0f;
+    bool firstMouse = true;
+
+    static MouseHandler handler;
+
+    MouseHandler(Camera* camera) : camera{camera} {}
+
+    static void mouseCallback(GLFWwindow* window, double xpos, double ypos)
+    {
+        // if (handler.firstMouse)
+        // {
+        //     handler.lastX = xpos;
+        //     handler.lastY = ypos;
+        //     handler.firstMouse = false;
+        // }
+    
+        float xoffset = xpos - handler.lastX;
+        float yoffset = handler.lastY - ypos; 
+        handler.lastX = xpos;
+        handler.lastY = ypos;
+
+        float sensitivity = 0.1f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        handler.camera->yaw   += xoffset;
+        handler.camera->pitch += yoffset;
+
+        if(handler.camera->pitch > 89.0f)
+            handler.camera->pitch = 89.0f;
+        if(handler.camera->pitch < -89.0f)
+            handler.camera->pitch = -89.0f;
+
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(handler.camera->yaw)) * cos(glm::radians(handler.camera->pitch));
+        direction.y = sin(glm::radians(handler.camera->pitch));
+        direction.z = sin(glm::radians(handler.camera->yaw)) * cos(glm::radians(handler.camera->pitch));
+        handler.camera->forward = glm::normalize(direction);
+    }  
+};
+
+MouseHandler MouseHandler::handler(NULL);
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -122,8 +186,23 @@ void openGlLogic(GLFWwindow* window) {
 
     glEnable(GL_DEPTH_TEST);
 
+    Camera camera;
+    camera.position = glm::vec3(0.0f, 0.0f, 5.0f);
+    camera.forward = glm::vec3(0.0f, 0.0f, -1.0f);
+    camera.yaw = -90.f;
+    camera.pitch = 0.0f;
+
+    MouseHandler::handler = MouseHandler(&camera);
+    glfwSetCursorPosCallback(window, MouseHandler::mouseCallback);
+
+    double prevTime = glfwGetTime();
+
     while(!glfwWindowShouldClose(window)) {
-        processInput(window);
+        double time = glfwGetTime();
+        double deltaTime = time - prevTime;
+        prevTime = time;
+        handleExit(window);
+        handleMovement(window, camera, deltaTime);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -136,10 +215,9 @@ void openGlLogic(GLFWwindow* window) {
         shaderProgram.setInt("crateTexture", 0);
         shaderProgram.setInt("faceTexture", 1);
 
-        glm::mat4 view(1.0f);
-        glm::mat4 projection(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));; 
-        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        
+        glm::mat4 view = camera.view();
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         shaderProgram.setMat4("view", glm::value_ptr(view));
         shaderProgram.setMat4("projection", glm::value_ptr(projection));
 
