@@ -15,6 +15,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "InputHandler.h"
 
 void handleExit(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -192,8 +193,10 @@ void openGlLogic(GLFWwindow* window) {
     camera.yaw = -90.f;
     camera.pitch = 0.0f;
 
-    MouseHandler::handler = MouseHandler(&camera);
-    glfwSetCursorPosCallback(window, MouseHandler::mouseCallback);
+    CameraController cameraController(camera);
+
+    glfwSetKeyCallback(window, InputHandler::keyCallback);
+    glfwSetCursorPosCallback(window, InputHandler::mouseMoveCallback);
 
     double prevTime = glfwGetTime();
 
@@ -202,7 +205,9 @@ void openGlLogic(GLFWwindow* window) {
         double deltaTime = time - prevTime;
         prevTime = time;
         handleExit(window);
-        handleMovement(window, camera, deltaTime);
+        // handleMovement(window, camera, deltaTime);
+
+        cameraController.update(deltaTime);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

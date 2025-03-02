@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+#include "InputHandler.h"
+
 class Camera {
 public:
     glm::mat4 view() const;    
@@ -14,6 +16,22 @@ public:
     glm::vec3 forward;
 private:
     const static glm::vec3 up;
+};
+
+class CameraController : public MouseCallbackReceiver, public KeyCallbackReceiver {
+public:
+    CameraController(Camera& camera);
+    void keyCallback(int key, int action) override;
+    void mouseCallback(double xPos, double yPos) override;
+
+    void update(float deltaTime);
+private:
+    Camera& camera;
+    glm::vec3 velocity;
+    float speed;
+
+    float lastX;
+    float lastY;
 };
 
 #endif
