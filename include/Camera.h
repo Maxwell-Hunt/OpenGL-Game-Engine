@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "InputHandler.h"
+#include "InputManager.h"
 
 class Camera {
 public:
@@ -18,11 +18,9 @@ private:
     const static glm::vec3 up;
 };
 
-class CameraController : public MouseCallbackReceiver, public KeyCallbackReceiver {
+class CameraController {
 public:
     CameraController(Camera& camera);
-    void keyCallback(int key, int action) override;
-    void mouseCallback(double xPos, double yPos) override;
 
     void update(float deltaTime);
 private:
@@ -32,6 +30,8 @@ private:
 
     float lastX;
     float lastY;
+
+    bool firstMouse;
 };
 
 #endif

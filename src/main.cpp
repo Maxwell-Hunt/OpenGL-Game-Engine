@@ -1,8 +1,6 @@
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 
-
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,76 +13,13 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
-#include "InputHandler.h"
+#include "InputManager.h"
 
 void handleExit(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
 }
-
-void handleMovement(GLFWwindow* window, Camera& camera, double deltaTime) {
-    float speed = 10 * deltaTime;
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera.position += camera.forward * speed;
-    }
-    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        camera.position -= camera.forward * speed;
-    }
-    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        camera.position += camera.getRight() * speed;
-    }
-    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        camera.position -= camera.getRight() * speed;
-    }
-}
-
-class MouseHandler {
-public:
-    Camera* camera;
-    float lastX = 400.0f;
-    float lastY = 300.0f;
-    bool firstMouse = true;
-
-    static MouseHandler handler;
-
-    MouseHandler(Camera* camera) : camera{camera} {}
-
-    static void mouseCallback(GLFWwindow* window, double xpos, double ypos)
-    {
-        // if (handler.firstMouse)
-        // {
-        //     handler.lastX = xpos;
-        //     handler.lastY = ypos;
-        //     handler.firstMouse = false;
-        // }
-    
-        float xoffset = xpos - handler.lastX;
-        float yoffset = handler.lastY - ypos; 
-        handler.lastX = xpos;
-        handler.lastY = ypos;
-
-        float sensitivity = 0.1f;
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
-
-        handler.camera->yaw   += xoffset;
-        handler.camera->pitch += yoffset;
-
-        if(handler.camera->pitch > 89.0f)
-            handler.camera->pitch = 89.0f;
-        if(handler.camera->pitch < -89.0f)
-            handler.camera->pitch = -89.0f;
-
-        glm::vec3 direction;
-        direction.x = cos(glm::radians(handler.camera->yaw)) * cos(glm::radians(handler.camera->pitch));
-        direction.y = sin(glm::radians(handler.camera->pitch));
-        direction.z = sin(glm::radians(handler.camera->yaw)) * cos(glm::radians(handler.camera->pitch));
-        handler.camera->forward = glm::normalize(direction);
-    }  
-};
-
-MouseHandler MouseHandler::handler(NULL);
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -195,8 +130,8 @@ void openGlLogic(GLFWwindow* window) {
 
     CameraController cameraController(camera);
 
-    glfwSetKeyCallback(window, InputHandler::keyCallback);
-    glfwSetCursorPosCallback(window, InputHandler::mouseMoveCallback);
+    InputManager::init(window);
+    glfwSetCursorPosCallback(window, InputManager::mouseMoveCallback);
 
     double prevTime = glfwGetTime();
 
@@ -205,7 +140,6 @@ void openGlLogic(GLFWwindow* window) {
         double deltaTime = time - prevTime;
         prevTime = time;
         handleExit(window);
-        // handleMovement(window, camera, deltaTime);
 
         cameraController.update(deltaTime);
 
