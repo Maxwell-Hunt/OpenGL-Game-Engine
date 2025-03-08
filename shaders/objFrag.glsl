@@ -21,9 +21,10 @@ void main() {
     vec3 norm = normalize(normal);
 
     // Diffuse lighting
+    float diffuseBaseStrength = 0.5;
     vec3 directionToLight = normalize(lightPosition - fragPosition);
     float diffuseStrength = max(dot(norm, directionToLight), 0.0);
-    vec3 diffuse = diffuseStrength * lightColor;
+    vec3 diffuse = diffuseStrength * diffuseBaseStrength * lightColor;
 
     // Specular lighting
     float specularBaseStrength = 1.0;

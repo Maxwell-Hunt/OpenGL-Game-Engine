@@ -151,7 +151,10 @@ void openGlLogic(GLFWwindow* window) {
         glm::mat4 objectNormalMatrix = glm::transpose(glm::inverse(view * objectModel));
 
         glm::mat4 lightModel(1.0f);
-        glm::vec3 lightPosition = glm::vec3(0.0f, 1.0f, -3.0f);
+        float radius = -2.0f;
+        float x = cos(glfwGetTime()) * radius;
+        float z = sin(glfwGetTime()) * radius;
+        glm::vec3 lightPosition = glm::vec3(x, 1.0f, z);
         lightModel = glm::translate(lightModel, lightPosition);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
