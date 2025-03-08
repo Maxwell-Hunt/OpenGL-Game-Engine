@@ -17,12 +17,23 @@ void main() {
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;
 
-    // Diffuse lighting
+    // Normalize the interpolated normals
     vec3 norm = normalize(normal);
-    vec3 reverseLightDir = normalize(lightPosition - fragPosition);
-    float diffuseStrength = max(dot(norm, reverseLightDir), 0.0);
+
+    // Diffuse lighting
+    vec3 directionToLight = normalize(lightPosition - fragPosition);
+    float diffuseStrength = max(dot(norm, directionToLight), 0.0);
     vec3 diffuse = diffuseStrength * lightColor;
 
-    vec3 result = (ambient + diffuse) * objectColor;
+    // Specular lighting
+    float specularBaseStrength = 1.0;
+    int shine = 256;
+    vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
+    vec3 reflectedLightDirection = reflect(-directionToLight, norm);
+    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), shine);
+    vec3 specular = specularStrength * specularBaseStrength * lightColor;
+
+    // Final result
+    vec3 result = (ambient + diffuse + specular) * objectColor;
     FragColor = vec4(result, 1.0);
 }

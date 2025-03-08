@@ -148,8 +148,10 @@ void openGlLogic(GLFWwindow* window) {
         glm::vec3 objectPosition = glm::vec3(0.0f);
         objectModel = glm::translate(objectModel, objectPosition);
 
+        glm::mat4 objectNormalMatrix = glm::transpose(glm::inverse(view * objectModel));
+
         glm::mat4 lightModel(1.0f);
-        glm::vec3 lightPosition = glm::vec3(1.2f, 1.0f, 2.0f);
+        glm::vec3 lightPosition = glm::vec3(0.0f, 1.0f, -3.0f);
         lightModel = glm::translate(lightModel, lightPosition);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
@@ -161,8 +163,10 @@ void openGlLogic(GLFWwindow* window) {
         objectShader.setMat4("view", glm::value_ptr(view));
         objectShader.setMat4("projection", glm::value_ptr(projection));
         objectShader.setMat4("model", glm::value_ptr(objectModel));
+        objectShader.setMat4("normalMatrix", glm::value_ptr(objectNormalMatrix));
 
-        objectShader.setFloat("lightPosition", lightPosition[0], lightPosition[1], lightPosition[2]);
+        glm::vec4 lightViewCoords = view * glm::vec4(lightPosition, 1.0f);
+        objectShader.setFloat("lightPosition", lightViewCoords[0], lightViewCoords[1], lightViewCoords[2]);
         
         glBindVertexArray(objectVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);

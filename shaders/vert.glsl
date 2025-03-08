@@ -5,6 +5,7 @@ layout (location = 1) in vec3 aNormal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 normalMatrix;
 
 out vec3 normal;
 out vec3 fragPosition;
@@ -16,7 +17,7 @@ out vec3 fragPosition;
 // Something common you might do in a vertex shader is normalize the data coming in to be
 // between -1 and 1. Here our data is already in the desired form so we just pass it on directly
 void main() {
-    normal = aNormal;
-    fragPosition = vec3(model * vec4(aPos, 1.0));
+    normal = mat3(normalMatrix) * aNormal;
+    fragPosition = vec3(view * model * vec4(aPos, 1.0));
     gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
