@@ -152,8 +152,8 @@ void openGlLogic(GLFWwindow* window) {
 
         objectShader.use();
 
-        objectShader.setFloat("objectColor", 1.0f, 0.5f, 0.31f, 1.0f);
-        objectShader.setFloat("lightColor", 1.0f, 1.0f, 1.0f, 1.0f);
+        objectShader.setFloat("objectColor", 1.0f, 0.5f, 0.31f);
+        objectShader.setFloat("lightColor", 1.0f, 1.0f, 1.0f);
 
         objectShader.setMat4("view", glm::value_ptr(view));
         objectShader.setMat4("projection", glm::value_ptr(projection));
@@ -164,7 +164,7 @@ void openGlLogic(GLFWwindow* window) {
 
         lightShader.use();
 
-        lightShader.setFloat("lightColor", 1.0f, 1.0f, 1.0f, 1.0f);
+        lightShader.setFloat("lightColor", 1.0f, 1.0f, 1.0f);
 
         lightShader.setMat4("view", glm::value_ptr(view));
         lightShader.setMat4("projection", glm::value_ptr(projection));
