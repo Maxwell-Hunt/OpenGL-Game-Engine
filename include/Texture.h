@@ -5,7 +5,7 @@
 
 class Texture {
 public:
-    Texture(std::string_view sourceFileName, int format);
+    Texture(std::string_view sourceFileName);
     Texture(const Texture& other) = delete;
     Texture(Texture&& other);
     Texture& operator=(const Texture& other) = delete;

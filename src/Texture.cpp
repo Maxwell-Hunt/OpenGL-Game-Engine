@@ -8,11 +8,20 @@
 #include <stdexcept>
 #include <sstream>
 
-Texture::Texture(std::string_view sourceFileName, int format) : key{0} {
+Texture::Texture(std::string_view sourceFileName) : key{0} {
     unsigned char* data = stbi_load(sourceFileName.data(), &width, &height, &numberOfChannels, 0);
     if(data == NULL) {
         std::ostringstream ss;
         ss << "Could not load image data from " << sourceFileName;
+        throw std::runtime_error(ss.str());
+    }
+    GLenum format;
+    if(numberOfChannels == 1) format = GL_RED;
+    else if(numberOfChannels == 3) format = GL_RGB;
+    else if(numberOfChannels == 4) format = GL_RGBA;
+    else {
+        std::ostringstream ss;
+        ss << "Could not determine format for " << sourceFileName;
         throw std::runtime_error(ss.str());
     }
     glGenTextures(1, &key);
