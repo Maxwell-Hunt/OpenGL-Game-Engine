@@ -86,6 +86,19 @@ void openGlLogic(GLFWwindow* window) {
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
     // Initialize vertex array object
     unsigned int objectVAO;
     glGenVertexArrays(1, &objectVAO);
@@ -152,11 +165,7 @@ void openGlLogic(GLFWwindow* window) {
         glm::mat4 view = camera.view();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        glm::mat4 objectModel(1.0f);
-        glm::vec3 objectPosition = glm::vec3(0.0f);
-        objectModel = glm::translate(objectModel, objectPosition);
-
-        glm::mat4 objectNormalMatrix = glm::transpose(glm::inverse(view * objectModel));
+        
 
         glm::mat4 lightModel(1.0f);
         float radius = -2.0f;
@@ -176,8 +185,7 @@ void openGlLogic(GLFWwindow* window) {
 
         objectShader.setMat4("view", glm::value_ptr(view));
         objectShader.setMat4("projection", glm::value_ptr(projection));
-        objectShader.setMat4("model", glm::value_ptr(objectModel));
-        objectShader.setMat4("normalMatrix", glm::value_ptr(objectNormalMatrix));
+        
 
         glm::vec4 lightViewCoords = view * glm::vec4(lightPosition, 1.0f);
         objectShader.setFloat("light.position", lightViewCoords[0], lightViewCoords[1], lightViewCoords[2]);
@@ -189,7 +197,20 @@ void openGlLogic(GLFWwindow* window) {
         objectShader.setFloat("light.specularStrength", 1.0);
         
         glBindVertexArray(objectVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for(int i = 0;i < 10;i++) {
+            glm::mat4 objectModel(1.0f);
+            float angle = glm::radians(20.0f * i);
+            objectModel = glm::translate(objectModel, cubePositions[i]);
+            objectModel = glm::rotate(objectModel, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            glm::mat4 objectNormalMatrix = glm::transpose(glm::inverse(view * objectModel));
+
+            objectShader.setMat4("model", glm::value_ptr(objectModel));
+            objectShader.setMat4("normalMatrix", glm::value_ptr(objectNormalMatrix));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        
 
         lightShader.use();
 
