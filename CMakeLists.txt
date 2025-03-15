@@ -14,7 +14,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include"
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_BUILD_TESTS OFF)
 
+add_subdirectory(external/assimp)
 add_subdirectory(external/glfw)
 add_subdirectory(external/glm)
 
@@ -26,3 +29,4 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} glm::glm-header-only)
+target_link_libraries(${PROJECT_NAME} assimp)
