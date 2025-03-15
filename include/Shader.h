@@ -71,6 +71,17 @@ public:
 
     void setDirectionalLight(std::string_view name, DirectionalLight value) const;
     void setPointLight(std::string_view name, PointLight value) const;
+
+    template <typename Collection>
+    void setPointLights(std::string_view name, const Collection& values) const {
+        std::string s(name);
+        int i = 0;
+        for(const PointLight& value : values) {
+            std::string indexedName = s + '[' + std::to_string(i) + ']';
+            setPointLight(indexedName, value);
+            i++;
+        }
+    }
 private:
     void checkProgramLinking() const;
     void setLight(const std::string& name, Light value) const;

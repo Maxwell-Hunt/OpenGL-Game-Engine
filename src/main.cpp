@@ -194,30 +194,33 @@ void openGlLogic(GLFWwindow* window) {
         
 
         glm::vec4 lightViewCoords = view * glm::vec4(lightPosition, 1.0f);
-        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 lightColor = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        PointLight pointLight = {
-            lightColor,
-            0.05f,
-            0.7f,
-            1.0f,
-            lightViewCoords,
-            1.0f,
-            0.09f,
-            0.032f
+        std::vector<PointLight> pointLights = {
+            {
+                lightColor,
+                0.05f,
+                0.7f,
+                1.0f,
+                lightViewCoords,
+                1.0f,
+                0.09f,
+                0.032f
+            }
         };
 
-        glm::vec3 skyColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 skyColor = glm::vec3(1.0f, 0.0f, 1.0f);
         DirectionalLight skyLight = {
             skyColor,
             0.2f,
             0.3f,
             0.5f,
-            glm::vec3(0.0f, 1.0f, 0.0f)
+            glm::vec3(0.0f, -1.0f, 0.0f)
         };
 
-        objectShader.setPointLight("pointLights[0]", pointLight);
+        objectShader.setPointLights("pointLights", pointLights);
         objectShader.setDirectionalLight("skyLight", skyLight);
+        objectShader.setInt("numLights", 1);
         
         glBindVertexArray(objectVAO);
 

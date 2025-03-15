@@ -34,11 +34,13 @@ struct PointLight {
     float kq;
 };
 
-#define NUM_POINT_LIGHTS 1
+#define NUM_POINT_LIGHTS 30
 
 uniform Material material;
 uniform DirectionalLight skyLight;
 uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+uniform int numLights;
 
 vec3 directionalLightContribution(DirectionalLight light) {
     vec3 diffuseColor = vec3(texture(material.diffuse, texCoords));
@@ -96,7 +98,7 @@ vec3 pointLightContribution(PointLight light) {
 // Here we only need a single output which is the color of the pixel.
 void main() {
     vec3 result = directionalLightContribution(skyLight);
-    for(int i = 0;i < NUM_POINT_LIGHTS;i++) {
+    for(int i = 0;i < numLights;i++) {
         result += pointLightContribution(pointLights[i]);
     }
     FragColor = vec4(result, 1.0);
