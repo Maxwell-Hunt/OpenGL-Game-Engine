@@ -194,23 +194,30 @@ void openGlLogic(GLFWwindow* window) {
         
 
         glm::vec4 lightViewCoords = view * glm::vec4(lightPosition, 1.0f);
-        objectShader.setFloat("pointLights[0].position", lightViewCoords[0], lightViewCoords[1], lightViewCoords[2]);
-
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        objectShader.setFloat("pointLights[0].color", lightColor[0], lightColor[1], lightColor[2]);
-        objectShader.setFloat("pointLights[0].ambientStrength", 0.05f);
-        objectShader.setFloat("pointLights[0].diffuseStrength", 0.5f);
-        objectShader.setFloat("pointLights[0].specularStrength", 1.0f);
-        objectShader.setFloat("pointLights[0].kc", 1.0f);
-        objectShader.setFloat("pointLights[0].kl", 0.09f);
-        objectShader.setFloat("pointLights[0].kq", 0.032f);
+
+        PointLight pointLight = {
+            lightColor,
+            0.05f,
+            0.7f,
+            1.0f,
+            lightViewCoords,
+            1.0f,
+            0.09f,
+            0.032f
+        };
 
         glm::vec3 skyColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        objectShader.setFloat("skyLight.direction", 0.0f, -1.0f, -0.0f);
-        objectShader.setFloat("skyLight.color", skyColor[0], skyColor[1], skyColor[2]);
-        objectShader.setFloat("skyLight.ambientStrength", 0.2f);
-        objectShader.setFloat("skyLight.diffuseStrength", 0.3f);
-        objectShader.setFloat("skyLight.specularStrength", 0.5f);
+        DirectionalLight skyLight = {
+            skyColor,
+            0.2f,
+            0.3f,
+            0.5f,
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        };
+
+        objectShader.setPointLight("pointLights[0]", pointLight);
+        objectShader.setDirectionalLight("skyLight", skyLight);
         
         glBindVertexArray(objectVAO);
 
@@ -227,7 +234,6 @@ void openGlLogic(GLFWwindow* window) {
         }
 
         lightShader.use();
-
         lightShader.setFloat("lightColor", lightColor[0], lightColor[1], lightColor[2]);
 
         lightShader.setMat4("view", glm::value_ptr(view));

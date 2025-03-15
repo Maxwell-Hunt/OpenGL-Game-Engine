@@ -6,6 +6,8 @@
 #include <array>
 #include <optional>
 
+#include "Light.h"
+
 /*
 These classes serve to encapsulate the process of setting up Shaders and Shader Programs
 
@@ -65,9 +67,13 @@ public:
     void setFloat(std::string_view name, float value1, float value2) const;
     void setFloat(std::string_view name, float value1, float value2, float value3) const;
     void setFloat(std::string_view name, float value1, float value2, float value3, float value4) const;
-    void setMat4(std::string_view name, float* value, bool transpose = false);
+    void setMat4(std::string_view name, float* value, bool transpose = false) const;
+
+    void setDirectionalLight(std::string_view name, DirectionalLight value) const;
+    void setPointLight(std::string_view name, PointLight value) const;
 private:
     void checkProgramLinking() const;
+    void setLight(const std::string& name, Light value) const;
 
     unsigned int key;
 };

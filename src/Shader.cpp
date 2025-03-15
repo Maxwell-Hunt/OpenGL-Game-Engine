@@ -119,6 +119,29 @@ void ShaderProgram::setFloat(std::string_view name, float value1, float value2, 
     glUniform4f(glGetUniformLocation(key, name.data()), value1, value2, value3, value4);
 }
 
-void ShaderProgram::setMat4(std::string_view name, float* value, bool transpose) {
+void ShaderProgram::setMat4(std::string_view name, float* value, bool transpose) const {
     glUniformMatrix4fv(glGetUniformLocation(key, name.data()), 1, transpose, value);
+}
+
+void ShaderProgram::setLight(const std::string& name, Light value) const {
+    std::string s(name);
+    setFloat(s+".color", value.color[0], value.color[1], value.color[2]);
+    setFloat(s+".ambientStrength", value.ambientStrength);
+    setFloat(s+".diffuseStrength", value.diffuseStrength);
+    setFloat(s+".specularStrength", value.specularStrength);
+}
+
+void ShaderProgram::setDirectionalLight(std::string_view name, DirectionalLight value) const {
+    std::string s(name);
+    setLight(s, value);
+    setFloat(s+".direction", value.direction[0], value.direction[1], value.direction[2]);
+}
+
+void ShaderProgram::setPointLight(std::string_view name, PointLight value) const {
+    std::string s(name);
+    setLight(s, value);
+    setFloat(s+".position", value.position[0], value.position[1], value.position[2]);
+    setFloat(s+".kc", value.kc);
+    setFloat(s+".kl", value.kl);
+    setFloat(s+".kq", value.kq);
 }
