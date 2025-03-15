@@ -18,5 +18,11 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/glfw)
 add_subdirectory(external/glm)
 
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+else()
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+endif()
+
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} glm::glm-header-only)
