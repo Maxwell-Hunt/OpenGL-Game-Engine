@@ -12,20 +12,58 @@ struct Material {
     float shine;
 };
 
-struct Light {
-    vec3 position;
+struct DirectionalLight {
+    vec3 direction;
+
     vec3 color;
     float ambientStrength;
     float diffuseStrength;
     float specularStrength;
 };
 
-uniform Material material;
-uniform Light light;
+struct PointLight {
+    vec3 position;
+    
+    vec3 color;
+    float ambientStrength;
+    float diffuseStrength;
+    float specularStrength;
 
-// The fragment shader runs once for each pixel on the screen.
-// Here we only need a single output which is the color of the pixel.
-void main() {
+    float kc;
+    float kl;
+    float kq;
+};
+
+#define NUM_POINT_LIGHTS 1
+
+uniform Material material;
+uniform DirectionalLight skyLight;
+uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+vec3 directionalLightContribution(DirectionalLight light) {
+    vec3 diffuseColor = vec3(texture(material.diffuse, texCoords));
+    vec3 specularColor = vec3(texture(material.specular, texCoords));
+
+    // Ambient lighting
+    vec3 ambient = diffuseColor * light.ambientStrength;
+
+    // Normalize the interpolated normals
+    vec3 norm = normalize(normal);
+
+    // Diffuse lighting
+    vec3 directionToLight = normalize(-light.direction);
+    float diffuseStrength = max(dot(norm, directionToLight), 0.0);
+    vec3 diffuse = diffuseStrength * diffuseColor * light.diffuseStrength;
+
+    // Specular lighting
+    vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
+    vec3 reflectedLightDirection = reflect(-directionToLight, norm);
+    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material.shine);
+    vec3 specular = specularStrength * specularColor * light.specularStrength;
+    return (ambient + diffuse + specular) * light.color;
+}
+
+vec3 pointLightContribution(PointLight light) {
     vec3 diffuseColor = vec3(texture(material.diffuse, texCoords));
     vec3 specularColor = vec3(texture(material.specular, texCoords));
 
@@ -46,7 +84,20 @@ void main() {
     float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material.shine);
     vec3 specular = specularStrength * specularColor * light.specularStrength;
 
+    // Attenuation
+    float dist = length(fragPosition - light.position);
+    float attenuation = 1.0 / (light.kc + light.kl * dist + light.kq * dist * dist);
+
     // Final result
-    vec3 result = (ambient + diffuse + specular) * light.color;
+    return attenuation * (ambient + diffuse + specular) * light.color;
+}
+
+// The fragment shader runs once for each pixel on the screen.
+// Here we only need a single output which is the color of the pixel.
+void main() {
+    vec3 result = directionalLightContribution(skyLight);
+    for(int i = 0;i < NUM_POINT_LIGHTS;i++) {
+        result += pointLightContribution(pointLights[i]);
+    }
     FragColor = vec4(result, 1.0);
 }

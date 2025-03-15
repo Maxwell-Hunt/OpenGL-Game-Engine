@@ -99,6 +99,14 @@ void openGlLogic(GLFWwindow* window) {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
+    // positions of the point lights
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
+
     // Initialize vertex array object
     unsigned int objectVAO;
     glGenVertexArrays(1, &objectVAO);
@@ -165,8 +173,6 @@ void openGlLogic(GLFWwindow* window) {
         glm::mat4 view = camera.view();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        
-
         glm::mat4 lightModel(1.0f);
         float radius = -2.0f;
         float x = cos(glfwGetTime()) * radius;
@@ -188,13 +194,23 @@ void openGlLogic(GLFWwindow* window) {
         
 
         glm::vec4 lightViewCoords = view * glm::vec4(lightPosition, 1.0f);
-        objectShader.setFloat("light.position", lightViewCoords[0], lightViewCoords[1], lightViewCoords[2]);
+        objectShader.setFloat("pointLights[0].position", lightViewCoords[0], lightViewCoords[1], lightViewCoords[2]);
 
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        objectShader.setFloat("light.color", lightColor[0], lightColor[1], lightColor[2]);
-        objectShader.setFloat("light.ambientStrength", 0.2);
-        objectShader.setFloat("light.diffuseStrength", 0.5);
-        objectShader.setFloat("light.specularStrength", 1.0);
+        objectShader.setFloat("pointLights[0].color", lightColor[0], lightColor[1], lightColor[2]);
+        objectShader.setFloat("pointLights[0].ambientStrength", 0.05f);
+        objectShader.setFloat("pointLights[0].diffuseStrength", 0.5f);
+        objectShader.setFloat("pointLights[0].specularStrength", 1.0f);
+        objectShader.setFloat("pointLights[0].kc", 1.0f);
+        objectShader.setFloat("pointLights[0].kl", 0.09f);
+        objectShader.setFloat("pointLights[0].kq", 0.032f);
+
+        glm::vec3 skyColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        objectShader.setFloat("skyLight.direction", 0.0f, -1.0f, -0.0f);
+        objectShader.setFloat("skyLight.color", skyColor[0], skyColor[1], skyColor[2]);
+        objectShader.setFloat("skyLight.ambientStrength", 0.2f);
+        objectShader.setFloat("skyLight.diffuseStrength", 0.3f);
+        objectShader.setFloat("skyLight.specularStrength", 0.5f);
         
         glBindVertexArray(objectVAO);
 
@@ -209,8 +225,6 @@ void openGlLogic(GLFWwindow* window) {
             objectShader.setMat4("normalMatrix", glm::value_ptr(objectNormalMatrix));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-        
 
         lightShader.use();
 
