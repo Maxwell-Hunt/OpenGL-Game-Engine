@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <sstream>
 
-Texture::Texture(std::string_view sourceFileName) : key{0} {
+Texture::Texture(std::string_view sourceFileName, Texture::Type type) : key{0}, type{type} {
     unsigned char* data = stbi_load(sourceFileName.data(), &width, &height, &numberOfChannels, 0);
     if(data == NULL) {
         std::ostringstream ss;
@@ -33,10 +33,12 @@ Texture::Texture(std::string_view sourceFileName) : key{0} {
 
 Texture::Texture(Texture&& other) {
     std::swap(key, other.key);
+    std::swap(type, other.type);
 }
 
 Texture& Texture::operator=(Texture&& other) {
     std::swap(key, other.key);
+    std::swap(type, other.type);
     return *this;
 }
 
@@ -46,7 +48,11 @@ Texture::~Texture() {
     }
 }
 
-void Texture::bind(unsigned int textureUnit) {
+void Texture::bind(unsigned int textureUnit) const {
     glActiveTexture(textureUnit);
     glBindTexture(GL_TEXTURE_2D, key);
+}
+
+Texture::Type Texture::getType() const {
+    return type;
 }
