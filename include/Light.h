@@ -2,6 +2,8 @@
 #define __LIGHT__
 
 #include <glm/glm.hpp>
+#include <ranges>
+#include <concepts>
 
 struct Light {
     glm::vec3 color;
@@ -20,5 +22,11 @@ struct PointLight : public Light {
     float kl;
     float kq;
 };
+
+template <typename T>
+concept PointLightRange =
+    std::ranges::range<T> &&
+    std::same_as<std::ranges::range_value_t<T>, PointLight>;
+
 
 #endif

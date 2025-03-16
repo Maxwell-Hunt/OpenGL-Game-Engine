@@ -3,8 +3,7 @@
 
 #include <glad/glad.h>
 #include <string>
-#include <array>
-#include <optional>
+#include <ranges>
 
 #include "Light.h"
 
@@ -72,8 +71,7 @@ public:
     void setDirectionalLight(std::string_view name, DirectionalLight value) const;
     void setPointLight(std::string_view name, PointLight value) const;
 
-    template <typename Collection>
-    void setPointLights(std::string_view name, const Collection& values) const {
+    void setPointLights(std::string_view name, const PointLightRange auto&  values) const {
         std::string s(name);
         int i = 0;
         for(const PointLight& value : values) {
