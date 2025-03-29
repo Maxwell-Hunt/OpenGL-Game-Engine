@@ -11,21 +11,27 @@ struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texCoords;
-    inline static constexpr unsigned int Stride = 8 * sizeof(float);
 };
 
 class Mesh {
 public:
+    Mesh() = default;
     Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<Texture>&& textures);
+    ~Mesh();
+    Mesh(const Mesh& other) = delete;
+    Mesh& operator=(const Mesh& other) = delete;
+    Mesh(Mesh&& other);
+    Mesh& operator=(Mesh&& other);
     void draw(const ShaderProgram& shader) const;
-private:
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
 
-    unsigned int VBO;
-    unsigned int EBO;
-    unsigned int VAO;
+private:
+    std::vector<Vertex> mVertices;
+    std::vector<unsigned int> mIndices;
+    std::vector<Texture> mTextures;
+
+    unsigned int mVBO;
+    unsigned int mEBO;
+    unsigned int mVAO;
 };
 
 #endif
