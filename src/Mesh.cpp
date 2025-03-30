@@ -2,10 +2,10 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<Texture>&& textures) :
+Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices) :
     mVertices{std::move(vertices)},
     mIndices{std::move(indices)},
-    mTextures{std::move(textures)}
+    mTextureIndices{std::move(textureIndices)}
 {
     glGenVertexArrays(1, &mVAO);
     glGenBuffers(1, &mVBO);
@@ -37,7 +37,7 @@ Mesh::~Mesh() {
 Mesh::Mesh(Mesh&& other) :
     mVertices{std::move(other.mVertices)},
     mIndices{std::move(other.mIndices)},
-    mTextures{std::move(other.mTextures)},
+    mTextureIndices{std::move(other.mTextureIndices)},
     mVBO{other.mVBO},
     mEBO{other.mEBO},
     mVAO{other.mVAO}
@@ -52,31 +52,9 @@ Mesh& Mesh::operator=(Mesh&& other) {
     Mesh temp(std::move(other));
     mVertices = std::move(temp.mVertices);
     mIndices = std::move(temp.mIndices);
-    mTextures = std::move(temp.mTextures);
+    mTextureIndices = std::move(temp.mTextureIndices);
     std::swap(mVAO, temp.mVAO);
     std::swap(mVBO, temp.mVBO);
     std::swap(mEBO, temp.mEBO);
     return *this;
-}
-
-void Mesh::draw(const ShaderProgram& shader) const {
-    if(mVAO == 0) {
-        throw std::runtime_error("Trying to draw deleted Mesh");
-    }
-    std::size_t numDiffuse = 0;
-    std::size_t numSpecular  = 0;
-    for(std::size_t i = 0;i < mTextures.size();i++) {
-        mTextures[i].bind(GL_TEXTURE0 + i);
-        switch(mTextures[i].getType()) {
-            case Texture::Type::Diffuse:
-                shader.setInt("diffuseTexture" + std::to_string(numDiffuse++), i);
-                break;
-            case Texture::Type::Specular:
-                shader.setInt("specularTexture" + std::to_string(numSpecular++), i);
-                break;
-        }
-    }
-    glBindVertexArray(mVAO);
-    glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
 }

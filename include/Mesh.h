@@ -14,20 +14,19 @@ struct Vertex {
 };
 
 class Mesh {
+friend class Model;
 public:
-    Mesh() = default;
-    Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<Texture>&& textures);
+    Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices);
     ~Mesh();
     Mesh(const Mesh& other) = delete;
     Mesh& operator=(const Mesh& other) = delete;
     Mesh(Mesh&& other);
     Mesh& operator=(Mesh&& other);
-    void draw(const ShaderProgram& shader) const;
 
 private:
     std::vector<Vertex> mVertices;
     std::vector<unsigned int> mIndices;
-    std::vector<Texture> mTextures;
+    std::vector<unsigned int> mTextureIndices;
 
     unsigned int mVBO;
     unsigned int mEBO;

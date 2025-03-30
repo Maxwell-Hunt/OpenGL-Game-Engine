@@ -16,6 +16,7 @@
 
 #include "Texture.h"
 #include "Mesh.h"
+#include "Model.h"
 
 void handleExit(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -47,25 +48,21 @@ void openGlLogic(GLFWwindow* window) {
     InputManager::init(window);
     glfwSetCursorPosCallback(window, InputManager::mouseMoveCallback);
 
-    //Mesh mesh;
     std::vector<Vertex> vertices = {
         Vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f)),
         Vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f)),
         Vertex(glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f))
     };
     std::vector<unsigned int> indices = {0, 1, 2};
-    std::vector<Texture> textures;
+    std::vector<unsigned int> textures;
     
-    Mesh mesh(std::move(vertices), std::move(indices), std::move(textures));
-    // mesh.vertices = std::move(vertices);
-    // mesh.indices = std::move(indices);
-    // mesh.textures = std::move(textures);
-    // mesh.initialize();
+    Model backpack("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
+    std::cout << "Loading Complete" << std::endl;
 
     double prevTime = glfwGetTime();
 
     while(!glfwWindowShouldClose(window)) {
-        glClearColor(0.5f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double time = glfwGetTime();
@@ -75,14 +72,16 @@ void openGlLogic(GLFWwindow* window) {
 
         cameraController.update(deltaTime);
 
+        glm::mat4 model(1.0f);
         glm::mat4 view = camera.view();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
+        objectShader.setMat4("model", glm::value_ptr(model));
+        objectShader.setMat4("view", glm::value_ptr(view));
+        objectShader.setMat4("projection", glm::value_ptr(projection));
+
         objectShader.use();
-        // glBindVertexArray(VAO);
-        // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-        // glBindVertexArray(0);
-        mesh.draw(objectShader);
+        backpack.draw(objectShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <sstream>
 
-Texture::Texture(std::string_view sourceFileName, Texture::Type type) : key{0}, type{type} {
-    unsigned char* data = stbi_load(sourceFileName.data(), &width, &height, &numberOfChannels, 0);
+Texture::Texture(std::filesystem::path sourceFileName, Texture::Type type) : key{0}, type{type}, path{sourceFileName} {
+    unsigned char* data = stbi_load(sourceFileName.c_str(), &width, &height, &numberOfChannels, 0);
     if(data == NULL) {
         std::ostringstream ss;
         ss << "Could not load image data from " << sourceFileName;
@@ -34,11 +34,13 @@ Texture::Texture(std::string_view sourceFileName, Texture::Type type) : key{0}, 
 Texture::Texture(Texture&& other) {
     std::swap(key, other.key);
     std::swap(type, other.type);
+    path = std::move(other.path);
 }
 
 Texture& Texture::operator=(Texture&& other) {
     std::swap(key, other.key);
     std::swap(type, other.type);
+    path = std::move(other.path);
     return *this;
 }
 
@@ -55,4 +57,8 @@ void Texture::bind(unsigned int textureUnit) const {
 
 Texture::Type Texture::getType() const {
     return type;
+}
+
+const std::filesystem::path& Texture::getPath() const {
+    return path;
 }
