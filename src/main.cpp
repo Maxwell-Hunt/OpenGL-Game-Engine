@@ -29,8 +29,8 @@ void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void openGlLogic(GLFWwindow* window) {
-    Shader objectVertexShader("/home/maxwell/OpenGLProject/shaders/simplevert.glsl", GL_VERTEX_SHADER);
-    Shader objectFragmentShader("/home/maxwell/OpenGLProject/shaders/simplefrag.glsl", GL_FRAGMENT_SHADER);
+    Shader objectVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
+    Shader objectFragmentShader("/home/maxwell/OpenGLProject/shaders/objFrag.glsl", GL_FRAGMENT_SHADER);
 
     ShaderProgram objectShader;
     objectShader.attach(std::move(objectVertexShader)).attach(std::move(objectFragmentShader)).link();
@@ -56,7 +56,7 @@ void openGlLogic(GLFWwindow* window) {
     std::vector<unsigned int> indices = {0, 1, 2};
     std::vector<unsigned int> textures;
     
-    Model backpack("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
+    Model backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
     std::cout << "Loading Complete" << std::endl;
 
     double prevTime = glfwGetTime();
@@ -73,12 +73,40 @@ void openGlLogic(GLFWwindow* window) {
         cameraController.update(deltaTime);
 
         glm::mat4 model(1.0f);
+        model = glm::rotate(model, (float)glfwGetTime() * 0.2f, glm::vec3(0.2f, 0.3f, 0.5f));
         glm::mat4 view = camera.view();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        objectShader.setMat4("model", glm::value_ptr(model));
-        objectShader.setMat4("view", glm::value_ptr(view));
-        objectShader.setMat4("projection", glm::value_ptr(projection));
+        glm::mat4 modelViewMatrix = view * model;
+        glm::mat4 modelViewProjectionMatrix = projection * modelViewMatrix;
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
+
+        glm::vec3 lightPosition(3.f * cos(glfwGetTime()), 0.0f, 3.f * sin(glfwGetTime()));
+
+        objectShader.setMat4("modelViewMatrix", glm::value_ptr(modelViewMatrix));
+        objectShader.setMat4("modelViewProjectionMatrix", glm::value_ptr(modelViewProjectionMatrix));
+        objectShader.setMat4("normalMatrix", glm::value_ptr(normalMatrix));
+
+        objectShader.setInt("numLights", 1);
+        objectShader.setDirectionalLight("skyLight", {
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            0.5f,
+            0.3f,
+            0.3f,
+            glm::vec3(0.2f, 0.3f, -0.7f)
+        });
+
+        objectShader.setPointLights("pointLights", std::array<PointLight, 1>({{
+            glm::vec3(1.0f, 0.0f, 0.0f),
+            0.0f,
+            0.8f,
+            0.8f,
+            lightPosition,
+            1.0f,
+            0.09f,
+            0.032f
+        }}));
+        objectShader.setFloat("material0.shine", 32.0f);
 
         objectShader.use();
         backpack.draw(objectShader);

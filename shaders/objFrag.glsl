@@ -36,15 +36,15 @@ struct PointLight {
 
 #define NUM_POINT_LIGHTS 30
 
-uniform Material material;
+uniform Material material0;
 uniform DirectionalLight skyLight;
 uniform PointLight pointLights[NUM_POINT_LIGHTS];
 
 uniform int numLights;
 
 vec3 directionalLightContribution(DirectionalLight light) {
-    vec3 diffuseColor = vec3(texture(material.diffuse, texCoords));
-    vec3 specularColor = vec3(texture(material.specular, texCoords));
+    vec3 diffuseColor = vec3(texture(material0.diffuse, texCoords));
+    vec3 specularColor = vec3(texture(material0.specular, texCoords));
 
     // Ambient lighting
     vec3 ambient = diffuseColor * light.ambientStrength;
@@ -60,14 +60,14 @@ vec3 directionalLightContribution(DirectionalLight light) {
     // Specular lighting
     vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
     vec3 reflectedLightDirection = reflect(-directionToLight, norm);
-    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material.shine);
+    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material0.shine);
     vec3 specular = specularStrength * specularColor * light.specularStrength;
     return (ambient + diffuse + specular) * light.color;
 }
 
 vec3 pointLightContribution(PointLight light) {
-    vec3 diffuseColor = vec3(texture(material.diffuse, texCoords));
-    vec3 specularColor = vec3(texture(material.specular, texCoords));
+    vec3 diffuseColor = vec3(texture(material0.diffuse, texCoords));
+    vec3 specularColor = vec3(texture(material0.specular, texCoords));
 
     // Ambient lighting
     vec3 ambient = diffuseColor * light.ambientStrength;
@@ -83,7 +83,7 @@ vec3 pointLightContribution(PointLight light) {
     // Specular lighting
     vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
     vec3 reflectedLightDirection = reflect(-directionToLight, norm);
-    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material.shine);
+    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material0.shine);
     vec3 specular = specularStrength * specularColor * light.specularStrength;
 
     // Attenuation

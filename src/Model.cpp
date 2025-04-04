@@ -42,12 +42,13 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
     for(std::size_t i = 0;i < mesh.mTextureIndices.size();i++) {
         const Texture& texture = mTextures[mesh.mTextureIndices[i]];
         texture.bind(GL_TEXTURE0 + i);
+        const std::string materialName = "material";
         switch(texture.getType()) {
             case Texture::Type::Diffuse:
-                shader.setInt("diffuseTexture" + std::to_string(numDiffuse++), i);
+                shader.setInt(materialName + std::to_string(numDiffuse++) + ".diffuse", i);
                 break;
             case Texture::Type::Specular:
-                shader.setInt("specularTexture" + std::to_string(numSpecular++), i);
+                shader.setInt(materialName + std::to_string(numSpecular++) + ".specular", i);
                 break;
         }
     }
@@ -121,4 +122,8 @@ std::optional<unsigned int> Model::findTextureIndex(const std::filesystem::path&
         }
     }
     return std::nullopt;
+}
+
+Model ModelFactory::loadModel(const std::filesystem::path& path) {
+    return Model(path);   
 }

@@ -10,10 +10,11 @@
 #include <filesystem>
 
 class Model {
+friend class ModelFactory;
 public:
-    Model(const std::filesystem::path& path);
     void draw(const ShaderProgram& shader) const;
 private:
+    Model(const std::filesystem::path& path);
     void drawMesh(const ShaderProgram& shader, const Mesh& mesh) const;
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
@@ -23,6 +24,11 @@ private:
     std::filesystem::path mDirectory;
     std::vector<Mesh> mMeshes;
     std::vector<Texture> mTextures;
+};
+
+class ModelFactory {
+public:
+    static Model loadModel(const std::filesystem::path& path);
 };
 
 #endif
