@@ -14,12 +14,8 @@ friend class ModelFactory;
 public:
     void draw(const ShaderProgram& shader) const;
 private:
-    Model(const std::filesystem::path& path);
+    Model(std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures);
     void drawMesh(const ShaderProgram& shader, const Mesh& mesh) const;
-    void processNode(aiNode* node, const aiScene* scene);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    void loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<unsigned int>& textureIndices);
-    std::optional<unsigned int> findTextureIndex(const std::filesystem::path& path) const;
 
     std::filesystem::path mDirectory;
     std::vector<Mesh> mMeshes;
