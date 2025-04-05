@@ -22,9 +22,4 @@ private:
     std::vector<Texture> mTextures;
 };
 
-class ModelFactory {
-public:
-    static Model loadModel(const std::filesystem::path& path);
-};
-
 #endif

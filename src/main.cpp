@@ -16,7 +16,7 @@
 
 #include "Texture.h"
 #include "Mesh.h"
-#include "Model.h"
+#include "ModelFactory.h"
 
 void handleExit(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
