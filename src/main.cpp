@@ -32,8 +32,69 @@ void openGlLogic(GLFWwindow* window) {
     Shader objectVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
     Shader objectFragmentShader("/home/maxwell/OpenGLProject/shaders/objFrag.glsl", GL_FRAGMENT_SHADER);
 
+    Shader lightVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
+    Shader lightFragmentShader("/home/maxwell/OpenGLProject/shaders/lightFrag.glsl", GL_FRAGMENT_SHADER);
+
     ShaderProgram objectShader;
     objectShader.attach(std::move(objectVertexShader)).attach(std::move(objectFragmentShader)).link();
+    ShaderProgram lightShader;
+    lightShader.attach(std::move(lightVertexShader)).attach(std::move(lightFragmentShader)).link();
+
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+    
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+    
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+    
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+    
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
+    
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f
+    };
+
+    unsigned int VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO); 
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
     
     glEnable(GL_DEPTH_TEST);
 
@@ -47,17 +108,8 @@ void openGlLogic(GLFWwindow* window) {
 
     InputManager::init(window);
     glfwSetCursorPosCallback(window, InputManager::mouseMoveCallback);
-
-    std::vector<Vertex> vertices = {
-        Vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f)),
-        Vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f)),
-        Vertex(glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f))
-    };
-    std::vector<unsigned int> indices = {0, 1, 2};
-    std::vector<unsigned int> textures;
     
     Model backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
-    std::cout << "Loading Complete" << std::endl;
 
     double prevTime = glfwGetTime();
 
@@ -73,7 +125,6 @@ void openGlLogic(GLFWwindow* window) {
         cameraController.update(deltaTime);
 
         glm::mat4 model(1.0f);
-        model = glm::rotate(model, (float)glfwGetTime() * 0.2f, glm::vec3(0.2f, 0.3f, 0.5f));
         glm::mat4 view = camera.view();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
@@ -81,35 +132,50 @@ void openGlLogic(GLFWwindow* window) {
         glm::mat4 modelViewProjectionMatrix = projection * modelViewMatrix;
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
 
-        glm::vec3 lightPosition(3.f * cos(glfwGetTime()), 0.0f, 3.f * sin(glfwGetTime()));
-
+        float radius = 5.0f;
+        glm::vec3 lightPosition(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
+        glm::vec3 lightDirection(0.0f, -1.0f, 0.0f);
+        glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
+        
+        objectShader.use();
         objectShader.setMat4("modelViewMatrix", glm::value_ptr(modelViewMatrix));
         objectShader.setMat4("modelViewProjectionMatrix", glm::value_ptr(modelViewProjectionMatrix));
         objectShader.setMat4("normalMatrix", glm::value_ptr(normalMatrix));
 
         objectShader.setInt("numLights", 1);
         objectShader.setDirectionalLight("skyLight", {
-            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            0.1f,
             0.5f,
-            0.3f,
-            0.3f,
-            glm::vec3(0.2f, 0.3f, -0.7f)
+            0.5f,
+            glm::normalize(glm::mat3(view) * lightDirection)
         });
 
         objectShader.setPointLights("pointLights", std::array<PointLight, 1>({{
-            glm::vec3(1.0f, 0.0f, 0.0f),
-            0.0f,
-            0.8f,
-            0.8f,
-            lightPosition,
+            pointLightColor,
+            0.02f,
+            1.0f,
+            1.0f,
+            glm::vec3(view * glm::vec4(lightPosition, 1.0f)),
             1.0f,
             0.09f,
             0.032f
         }}));
+
         objectShader.setFloat("material0.shine", 32.0f);
 
-        objectShader.use();
         backpack.draw(objectShader);
+
+        glm::mat4 lightModel(1.0f);
+        lightModel = glm::scale(lightModel, glm::vec3(0.5f, 0.5f, 0.5f));
+        lightModel = glm::translate(lightModel, lightPosition);
+        glm::mat4 lightModelViewProjection = projection * view * lightModel;
+        lightShader.use();
+        lightShader.setMat4("modelViewProjectionMatrix", glm::value_ptr(lightModelViewProjection));
+        lightShader.setFloat("lightColor", pointLightColor[0], pointLightColor[1], pointLightColor[2]);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -141,7 +207,7 @@ int main() {
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
-
+    
     openGlLogic(window);
 
     glfwTerminate();
