@@ -9,10 +9,17 @@
 
 #include <filesystem>
 
-class Model {
+class IDrawable {
+public:
+    virtual ~IDrawable() = default;
+    virtual void draw(const ShaderProgram& shader) const = 0; 
+};
+
+class Model : public IDrawable {
 friend class ModelFactory;
 public:
-    void draw(const ShaderProgram& shader) const;
+    virtual ~Model() override = default;
+    virtual void draw(const ShaderProgram& shader) const override;
 private:
     Model(std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures);
     void drawMesh(const ShaderProgram& shader, const Mesh& mesh) const;

@@ -7,7 +7,9 @@
 
 class Camera {
 public:
+    Camera(float aspectRatio);
     glm::mat4 view() const;    
+    glm::mat4 perspective() const;
     glm::vec3 getRight() const;
 
     float yaw;
@@ -15,6 +17,7 @@ public:
     glm::vec3 position;
     glm::vec3 forward;
 private:
+    float mAspectRatio;
     const static glm::vec3 up;
 };
 

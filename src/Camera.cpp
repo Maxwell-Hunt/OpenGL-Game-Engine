@@ -6,8 +6,14 @@
 
 const glm::vec3 Camera::up = glm::vec3(0.0f, 1.0f, 0.0f);
 
+Camera::Camera(float aspectRatio) { mAspectRatio = aspectRatio; }
+
 glm::mat4 Camera::view() const {
     return glm::lookAt(position, position + forward, up);
+}
+
+glm::mat4 Camera::perspective() const {
+    return glm::perspective(glm::radians(45.0f), mAspectRatio, 0.1f, 100.0f);
 }
 
 glm::vec3 Camera::getRight() const {
