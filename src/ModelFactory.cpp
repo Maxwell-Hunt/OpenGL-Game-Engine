@@ -6,14 +6,11 @@
 
 namespace {
 
-Texture::Type convertType(aiTextureType type) {
+Texture::Type convertTextureType(aiTextureType type) {
     switch(type) {
-        case aiTextureType_DIFFUSE:
-            return Texture::Type::Diffuse;
-        case aiTextureType_SPECULAR:
-            return Texture::Type::Specular;
-        default:
-            throw std::runtime_error("We don't currently support that texture type");
+        case aiTextureType_DIFFUSE: return Texture::Type::Diffuse;
+        case aiTextureType_SPECULAR: return Texture::Type::Specular;
+        default: throw std::runtime_error("We don't currently support that texture type");
     }
 }
 
@@ -44,7 +41,7 @@ std::vector<Texture> loadTextures(const std::filesystem::path& directory, const 
                 aiString aiPath;
                 mat->GetTexture(type, j, &aiPath);
                 std::filesystem::path path = aiPath.C_Str();
-                textures.push_back(Texture(directory / path, convertType(type)));
+                textures.push_back(Texture(directory / path, convertTextureType(type)));
             }
         }
     }
@@ -75,10 +72,26 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path
     }
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+
+    int illumModel;
+    if(material->Get("$mat.illum", 0, 0, illumModel) != AI_SUCCESS) {
+        std::cerr << "Failed to find illuminaiton model";
+        illumModel = 0;
+    }
+
+    aiColor3D color(0.0f, 0.0f, 0.0f);
+    material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+
     loadMaterialTextures(material, aiTextureType_DIFFUSE, directory, textures, textureIndices);
     loadMaterialTextures(material, aiTextureType_SPECULAR, directory, textures, textureIndices);
     
-    return Mesh(std::move(vertices), std::move(indices), std::move(textureIndices));
+    return Mesh(
+        convertIntToLightingType(illumModel),
+        {color.r, color.g, color.b},
+        std::move(vertices),
+        std::move(indices),
+        std::move(textureIndices));
 }
 
 std::vector<Mesh> processNode(aiNode* root, const aiScene* scene, const std::filesystem::path& directory, const std::vector<Texture>& textures) {

@@ -12,6 +12,11 @@ struct Light {
     float specularStrength;
 };
 
+struct Color {
+public:
+    float r, g, b;
+};
+
 struct DirectionalLight : public Light {
     glm::vec3 direction;
 };
@@ -22,6 +27,15 @@ struct PointLight : public Light {
     float kl;
     float kq;
 };
+
+enum class LightingType {
+    Flat,
+    Diffuse,
+    Complete
+};
+
+int convertLightingTypeToInt(LightingType type);
+LightingType convertIntToLightingType(int mode);
 
 template <typename T>
 concept PointLightRange =

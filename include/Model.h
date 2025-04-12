@@ -2,6 +2,7 @@
 #define __MODEL__
 
 #include "Mesh.h"
+#include "Light.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

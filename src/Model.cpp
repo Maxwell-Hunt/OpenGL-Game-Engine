@@ -17,6 +17,8 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
     }
     std::size_t numDiffuse = 0;
     std::size_t numSpecular  = 0;
+    shader.setLightingType("lightingType", mesh.mLightingType);
+    shader.setFloat("color", mesh.mColor.r, mesh.mColor.g, mesh.mColor.b);
     for(std::size_t i = 0;i < mesh.mTextureIndices.size();i++) {
         const Texture& texture = mTextures[mesh.mTextureIndices[i]];
         texture.bind(GL_TEXTURE0 + i);

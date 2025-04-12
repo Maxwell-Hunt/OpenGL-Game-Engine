@@ -16,7 +16,11 @@ struct Vertex {
 class Mesh {
 friend class Model;
 public:
-    Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices);
+    Mesh(LightingType lightingType,
+        Color color,
+        std::vector<Vertex>&& vertices,
+        std::vector<unsigned int>&& indices,
+        std::vector<unsigned int>&& textureIndices);
     ~Mesh();
     Mesh(const Mesh& other) = delete;
     Mesh& operator=(const Mesh& other) = delete;
@@ -24,6 +28,8 @@ public:
     Mesh& operator=(Mesh&& other);
 
 private:
+    LightingType mLightingType;
+    Color mColor;
     std::vector<Vertex> mVertices;
     std::vector<unsigned int> mIndices;
     std::vector<unsigned int> mTextureIndices;

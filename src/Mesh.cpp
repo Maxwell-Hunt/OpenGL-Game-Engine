@@ -2,7 +2,9 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices) :
+Mesh::Mesh(LightingType lightingType, Color color, std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices) :
+    mLightingType{lightingType},
+    mColor{color},
     mVertices{std::move(vertices)},
     mIndices{std::move(indices)},
     mTextureIndices{std::move(textureIndices)}
@@ -35,6 +37,8 @@ Mesh::~Mesh() {
 }
 
 Mesh::Mesh(Mesh&& other) :
+    mLightingType{other.mLightingType},
+    mColor{other.mColor},
     mVertices{std::move(other.mVertices)},
     mIndices{std::move(other.mIndices)},
     mTextureIndices{std::move(other.mTextureIndices)},
@@ -53,6 +57,8 @@ Mesh& Mesh::operator=(Mesh&& other) {
     mVertices = std::move(temp.mVertices);
     mIndices = std::move(temp.mIndices);
     mTextureIndices = std::move(temp.mTextureIndices);
+    std::swap(mLightingType, temp.mLightingType);
+    std::swap(mColor, other.mColor);
     std::swap(mVAO, temp.mVAO);
     std::swap(mVBO, temp.mVBO);
     std::swap(mEBO, temp.mEBO);
