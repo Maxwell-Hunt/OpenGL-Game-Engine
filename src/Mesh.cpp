@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(LightingType lightingType, Color color, std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices) :
+Mesh::Mesh(LightingType lightingType, std::optional<Color> color, std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices) :
     mLightingType{lightingType},
     mColor{color},
     mVertices{std::move(vertices)},

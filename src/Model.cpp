@@ -15,10 +15,15 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
     if(mesh.mVAO == 0) {
         throw std::runtime_error("Trying to draw deleted Mesh");
     }
+
     std::size_t numDiffuse = 0;
     std::size_t numSpecular  = 0;
+
     shader.setLightingType("lightingType", mesh.mLightingType);
-    shader.setFloat("color", mesh.mColor.r, mesh.mColor.g, mesh.mColor.b);
+
+    if(mesh.mColor != std::nullopt) shader.setFloat("color", mesh.mColor->r, mesh.mColor->g, mesh.mColor->b);
+    else shader.setFloat("color", 1.0f, 1.0f, 1.0f);
+
     for(std::size_t i = 0;i < mesh.mTextureIndices.size();i++) {
         const Texture& texture = mTextures[mesh.mTextureIndices[i]];
         texture.bind(GL_TEXTURE0 + i);
@@ -32,6 +37,7 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
                 break;
         }
     }
+    
     glBindVertexArray(mesh.mVAO);
     glDrawElements(GL_TRIANGLES, mesh.mIndices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

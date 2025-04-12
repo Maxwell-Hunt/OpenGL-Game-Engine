@@ -80,15 +80,18 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path
         illumModel = 0;
     }
 
-    aiColor3D color(0.0f, 0.0f, 0.0f);
-    material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+    aiColor3D colorProp(0.0f, 0.0f, 0.0f);
+    std::optional<Color> color = std::nullopt;
+    if(material->Get(AI_MATKEY_COLOR_DIFFUSE, colorProp) == AI_SUCCESS) {
+        color = Color(colorProp.r, colorProp.g, colorProp.b);
+    }
 
     loadMaterialTextures(material, aiTextureType_DIFFUSE, directory, textures, textureIndices);
     loadMaterialTextures(material, aiTextureType_SPECULAR, directory, textures, textureIndices);
     
     return Mesh(
         convertIntToLightingType(illumModel),
-        {color.r, color.g, color.b},
+        color,
         std::move(vertices),
         std::move(indices),
         std::move(textureIndices));

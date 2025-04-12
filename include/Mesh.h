@@ -17,7 +17,7 @@ class Mesh {
 friend class Model;
 public:
     Mesh(LightingType lightingType,
-        Color color,
+        std::optional<Color> color,
         std::vector<Vertex>&& vertices,
         std::vector<unsigned int>&& indices,
         std::vector<unsigned int>&& textureIndices);
@@ -29,7 +29,7 @@ public:
 
 private:
     LightingType mLightingType;
-    Color mColor;
+    std::optional<Color> mColor;
     std::vector<Vertex> mVertices;
     std::vector<unsigned int> mIndices;
     std::vector<unsigned int> mTextureIndices;
