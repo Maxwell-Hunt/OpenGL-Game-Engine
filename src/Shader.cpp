@@ -123,10 +123,6 @@ void ShaderProgram::setMat4(std::string_view name, float* value, bool transpose)
     glUniformMatrix4fv(glGetUniformLocation(key, name.data()), 1, transpose, value);
 }
 
-void ShaderProgram::setLightingType(std::string_view name, LightingType value) const {
-    glUniform1i(glGetUniformLocation(key, name.data()), convertLightingTypeToInt(value));
-}
-
 void ShaderProgram::setLight(const std::string& name, Light value) const {
     std::string s(name);
     setFloat(s+".color", value.color[0], value.color[1], value.color[2]);

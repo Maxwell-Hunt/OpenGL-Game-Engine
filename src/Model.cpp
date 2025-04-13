@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include <iostream>
+
 Model::Model(std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures) :
     mDirectory{std::move(directory)},
     mMeshes{std::move(meshes)},
@@ -19,10 +21,14 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
     std::size_t numDiffuse = 0;
     std::size_t numSpecular  = 0;
 
-    shader.setLightingType("lightingType", mesh.mLightingType);
+    if(mesh.mColor != std::nullopt) {
+        shader.setFloat("color", mesh.mColor->r, mesh.mColor->g, mesh.mColor->b);
+    } else {
+        shader.setFloat("color", 1.0f, 1.0f, 1.0f);
+    }
 
-    if(mesh.mColor != std::nullopt) shader.setFloat("color", mesh.mColor->r, mesh.mColor->g, mesh.mColor->b);
-    else shader.setFloat("color", 1.0f, 1.0f, 1.0f);
+    bool usesTexture = mesh.mTextureIndices.size() >= 1;
+    shader.setBool("usesTexture", usesTexture);
 
     for(std::size_t i = 0;i < mesh.mTextureIndices.size();i++) {
         const Texture& texture = mTextures[mesh.mTextureIndices[i]];

@@ -30,4 +30,13 @@ private:
     std::vector<Texture> mTextures;
 };
 
+class CubeModel : public IDrawable {
+friend class ModelFactory;
+public:
+    virtual ~CubeModel() override = default;
+    virtual void draw(const ShaderProgram& shader) const override;
+private:
+    CubeModel(Color color);
+};
+
 #endif

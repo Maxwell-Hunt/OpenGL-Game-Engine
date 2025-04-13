@@ -74,11 +74,14 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 
-    int illumModel;
-    if(material->Get("$mat.illum", 0, 0, illumModel) != AI_SUCCESS) {
-        std::cerr << "Failed to find illuminaiton model";
-        illumModel = 0;
-    }
+    // Commenting this out because it is not needed right now but it was difficult to figure out
+    // and it can be kept in case we ever want to have support for different illumination models.
+    // ---------------------------------------
+    // int illumModel;
+    // if(material->Get("$mat.illum", 0, 0, illumModel) != AI_SUCCESS) {
+    //     std::cerr << "Failed to find illuminaiton model";
+    //     illumModel = 0;
+    // }
 
     aiColor3D colorProp(0.0f, 0.0f, 0.0f);
     std::optional<Color> color = std::nullopt;
@@ -90,8 +93,7 @@ Mesh processMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path
     loadMaterialTextures(material, aiTextureType_SPECULAR, directory, textures, textureIndices);
     
     return Mesh(
-        convertIntToLightingType(illumModel),
-        color,
+        std::move(color),
         std::move(vertices),
         std::move(indices),
         std::move(textureIndices));

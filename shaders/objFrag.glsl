@@ -41,16 +41,17 @@ uniform DirectionalLight skyLight;
 uniform PointLight pointLights[NUM_POINT_LIGHTS];
 
 uniform int numLights;
-uniform int lightingType;
 uniform vec3 color;
 
-vec3 directionalLightContribution(DirectionalLight light) {
-    if(lightingType == 0) {
-        return color * light.color;
-    }
+uniform bool usesTexture;
 
-    vec3 diffuseColor = vec3(texture(material0.diffuse, texCoords));
-    vec3 specularColor = vec3(texture(material0.specular, texCoords));
+vec3 directionalLightContribution(DirectionalLight light) {
+    vec3 diffuseColor = color;
+    vec3 specularColor = color;
+    if(usesTexture) {
+        diffuseColor = vec3(texture(material0.diffuse, texCoords));
+        specularColor = vec3(texture(material0.specular, texCoords));
+    }
 
     // Ambient lighting
     vec3 ambient = diffuseColor * light.ambientStrength;
@@ -64,22 +65,20 @@ vec3 directionalLightContribution(DirectionalLight light) {
     vec3 diffuse = diffuseStrength * diffuseColor * light.diffuseStrength;
 
     // Specular lighting
-    vec3 specular = vec3(0.0);
-    if(lightingType == 2) {
-        vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
-        vec3 reflectedLightDirection = reflect(-directionToLight, norm);
-        float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material0.shine);
-        specular = specularStrength * specularColor * light.specularStrength;
-    }
+    vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
+    vec3 reflectedLightDirection = reflect(-directionToLight, norm);
+    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material0.shine);
+    vec3 specular = specularStrength * specularColor * light.specularStrength;
     return (ambient + diffuse + specular) * light.color;
 }
 
 vec3 pointLightContribution(PointLight light) {
-    if(lightingType == 0) {
-        return color * light.color;
+    vec3 diffuseColor = color;
+    vec3 specularColor = color;
+    if(usesTexture) {
+        diffuseColor = vec3(texture(material0.diffuse, texCoords));
+        specularColor = vec3(texture(material0.specular, texCoords));
     }
-    vec3 diffuseColor = vec3(texture(material0.diffuse, texCoords));
-    vec3 specularColor = vec3(texture(material0.specular, texCoords));
 
     // Ambient lighting
     vec3 ambient = diffuseColor * light.ambientStrength;
@@ -95,10 +94,7 @@ vec3 pointLightContribution(PointLight light) {
     // Specular lighting
     vec3 directionToView = normalize(-fragPosition); // Note that the viewer is at (0, 0, 0)
     vec3 reflectedLightDirection = reflect(-directionToLight, norm);
-    float specularStrength = 0.0;
-    if(lightingType == 2) {
-        specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material0.shine);
-    }
+    float specularStrength = pow(max(dot(directionToView, reflectedLightDirection), 0.0), material0.shine);
     vec3 specular = specularStrength * specularColor * light.specularStrength;
 
     // Attenuation

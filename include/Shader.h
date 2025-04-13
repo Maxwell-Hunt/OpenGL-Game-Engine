@@ -67,7 +67,6 @@ public:
     void setFloat(std::string_view name, float value1, float value2, float value3) const;
     void setFloat(std::string_view name, float value1, float value2, float value3, float value4) const;
     void setMat4(std::string_view name, float* value, bool transpose = false) const;
-    void setLightingType(std::string_view name, LightingType value) const;
 
     void setDirectionalLight(std::string_view name, DirectionalLight value) const;
     void setPointLight(std::string_view name, PointLight value) const;

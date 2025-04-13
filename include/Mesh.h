@@ -16,8 +16,7 @@ struct Vertex {
 class Mesh {
 friend class Model;
 public:
-    Mesh(LightingType lightingType,
-        std::optional<Color> color,
+    Mesh(std::optional<Color>&& color,
         std::vector<Vertex>&& vertices,
         std::vector<unsigned int>&& indices,
         std::vector<unsigned int>&& textureIndices);
@@ -28,7 +27,6 @@ public:
     Mesh& operator=(Mesh&& other);
 
 private:
-    LightingType mLightingType;
     std::optional<Color> mColor;
     std::vector<Vertex> mVertices;
     std::vector<unsigned int> mIndices;

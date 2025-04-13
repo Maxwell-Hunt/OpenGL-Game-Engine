@@ -2,8 +2,11 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(LightingType lightingType, std::optional<Color> color, std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<unsigned int>&& textureIndices) :
-    mLightingType{lightingType},
+Mesh::Mesh(
+    std::optional<Color>&& color,
+    std::vector<Vertex>&& vertices,
+    std::vector<unsigned int>&& indices,
+    std::vector<unsigned int>&& textureIndices) :
     mColor{color},
     mVertices{std::move(vertices)},
     mIndices{std::move(indices)},
@@ -37,7 +40,6 @@ Mesh::~Mesh() {
 }
 
 Mesh::Mesh(Mesh&& other) :
-    mLightingType{other.mLightingType},
     mColor{other.mColor},
     mVertices{std::move(other.mVertices)},
     mIndices{std::move(other.mIndices)},
@@ -57,7 +59,6 @@ Mesh& Mesh::operator=(Mesh&& other) {
     mVertices = std::move(temp.mVertices);
     mIndices = std::move(temp.mIndices);
     mTextureIndices = std::move(temp.mTextureIndices);
-    std::swap(mLightingType, temp.mLightingType);
     std::swap(mColor, other.mColor);
     std::swap(mVAO, temp.mVAO);
     std::swap(mVBO, temp.mVBO);

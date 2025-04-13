@@ -34,9 +34,6 @@ enum class LightingType {
     Complete
 };
 
-int convertLightingTypeToInt(LightingType type);
-LightingType convertIntToLightingType(int mode);
-
 template <typename T>
 concept PointLightRange =
     std::ranges::range<T> &&
