@@ -31,12 +31,15 @@ private:
 };
 
 class CubeModel : public IDrawable {
-friend class ModelFactory;
+friend class CubeModelFactory;
 public:
     virtual ~CubeModel() override = default;
     virtual void draw(const ShaderProgram& shader) const override;
 private:
-    CubeModel(Color color);
+    CubeModel(unsigned int VAO, unsigned int VBO, const Color& color);
+    unsigned int mVAO;
+    unsigned int mVBO;
+    Color mColor;
 };
 
 #endif

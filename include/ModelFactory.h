@@ -8,4 +8,9 @@ public:
     static Model loadModel(const std::filesystem::path& path);
 };
 
+class CubeModelFactory {
+public:
+    static CubeModel createCube(const Color& color);
+};
+
 #endif

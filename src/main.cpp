@@ -42,61 +42,6 @@ void openGlLogic(GLFWwindow* window) {
     ShaderProgram lightShader;
     lightShader.attach(std::move(lightVertexShader)).attach(std::move(lightFragmentShader)).link();
 
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-    
-        -0.5f, -0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-    
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-    
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-    
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-    
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f
-    };
-
-    unsigned int VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO); 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-
     
     glEnable(GL_DEPTH_TEST);
 
@@ -116,6 +61,7 @@ void openGlLogic(GLFWwindow* window) {
 
     Renderer renderer(camera, objectShader, skyLight, pointLights);
 
+    CubeModel cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f});
     Model backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
 
     double prevTime = glfwGetTime();
@@ -162,17 +108,7 @@ void openGlLogic(GLFWwindow* window) {
         }});
 
         renderer.render(objectTransform, backpack);
-
-        glm::mat4 lightModel(1.0f);
-        lightModel = glm::scale(lightModel, glm::vec3(0.5f, 0.5f, 0.5f));
-        lightModel = glm::translate(lightModel, lightPosition);
-        glm::mat4 lightModelViewProjection = camera.perspective() * camera.view() * lightModel;
-        lightShader.use();
-        lightShader.setMat4("modelViewProjectionMatrix", glm::value_ptr(lightModelViewProjection));
-        lightShader.setFloat("lightColor", pointLightColor[0], pointLightColor[1], pointLightColor[2]);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        renderer.render({lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)}, cube);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

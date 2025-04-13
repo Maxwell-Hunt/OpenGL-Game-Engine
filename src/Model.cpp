@@ -48,3 +48,16 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
     glDrawElements(GL_TRIANGLES, mesh.mIndices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+CubeModel::CubeModel(unsigned int VAO, unsigned int VBO, const Color& color) : 
+    mVAO{VAO},
+    mVBO{VBO},
+    mColor{color} {}
+
+void CubeModel::draw(const ShaderProgram &shader) const {
+    shader.setFloat("color", mColor.r, mColor.g, mColor.b);
+    shader.setBool("usesTexture", false);
+    glBindVertexArray(mVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
