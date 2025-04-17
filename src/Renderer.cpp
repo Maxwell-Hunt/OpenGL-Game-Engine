@@ -3,13 +3,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Renderer::Renderer(const Camera& camera, const ShaderProgram& shader, const DirectionalLight& skyLight, const std::vector<PointLight>& pointLights) :
+#include <iostream>
+
+RenderSystem::RenderSystem(const Camera& camera, const ShaderProgram& shader, const DirectionalLight& skyLight, const std::vector<PointLight>& pointLights) :
     mCamera{camera},
     mShader{shader},
     mSkyLight{skyLight},
     mPointLights{pointLights} {}
 
-void Renderer::render(const Transform& transform, const IDrawable& drawable) const {
+void RenderSystem::run(ECS& ecs) {
+    for(EntityId entity = 0;entity < ecs.numEntities();entity++) {
+        if(ecs.hasComponents<Transform, DrawableComponent>(entity)) {
+            Transform* transform = ecs.getComponent<Transform>(entity);
+            DrawableComponent* model = ecs.getComponent<DrawableComponent>(entity);
+            render(*transform, *model);
+        }
+    }
+}
+
+void RenderSystem::render(const Transform& transform, const IDrawable& drawable) const {
     glm::mat4 model = transform.getModel();
     glm::mat4 view = mCamera.view();
     glm::mat4 projection = mCamera.perspective();

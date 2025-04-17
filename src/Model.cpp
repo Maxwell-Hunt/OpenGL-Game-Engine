@@ -61,3 +61,10 @@ void CubeModel::draw(const ShaderProgram &shader) const {
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
 }
+
+DrawableComponent::DrawableComponent(std::unique_ptr<IDrawable>&& drawable) :
+    mDrawable{std::move(drawable)} {}
+
+void DrawableComponent::draw(const ShaderProgram& shader) const {
+    mDrawable->draw(shader);
+}

@@ -42,4 +42,13 @@ private:
     Color mColor;
 };
 
+class DrawableComponent : public IDrawable {
+public:
+    DrawableComponent(std::unique_ptr<IDrawable>&& drawable);
+    virtual ~DrawableComponent() override = default;
+    virtual void draw(const ShaderProgram& shader) const override;
+private:
+    std::unique_ptr<IDrawable> mDrawable;
+};
+
 #endif

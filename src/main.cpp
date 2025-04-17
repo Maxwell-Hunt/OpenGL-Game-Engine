@@ -59,10 +59,30 @@ void openGlLogic(GLFWwindow* window) {
     std::vector<PointLight> pointLights;
     DirectionalLight skyLight;
 
-    Renderer renderer(camera, objectShader, skyLight, pointLights);
+    RenderSystem renderer(camera, objectShader, skyLight, pointLights);
 
-    CubeModel cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f});
-    Model backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
+    DrawableComponent cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f});
+    DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
+
+    ECS ecs;
+    EntityId object = ecs.createEntity();
+    EntityId light = ecs.createEntity();
+
+    Transform objectTransform = {
+        glm::vec3(0.0f),
+        glm::vec3(0.0f, glfwGetTime(), 0.0f),
+        glm::vec3(1.0f)
+    };
+
+    float radius = 6.0f;
+    glm::vec3 lightPosition(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
+    Transform lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)};
+
+    ecs.addComponentToEntity(object, &objectTransform);
+    ecs.addComponentToEntity(object, &backpack);
+
+    ecs.addComponentToEntity(light, &cube);
+    ecs.addComponentToEntity(light, &lightTransform);
 
     double prevTime = glfwGetTime();
 
@@ -77,14 +97,15 @@ void openGlLogic(GLFWwindow* window) {
 
         cameraController.update(deltaTime);
 
-        Transform objectTransform = {
+        objectTransform = {
             glm::vec3(0.0f),
             glm::vec3(0.0f, glfwGetTime(), 0.0f),
             glm::vec3(1.0f)
         };
 
-        float radius = 8.0f;
-        glm::vec3 lightPosition(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
+        lightPosition = glm::vec3(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
+        lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)};
+        
         glm::vec3 lightDirection(0.0f, -1.0f, 0.0f);
         glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
 
@@ -104,12 +125,11 @@ void openGlLogic(GLFWwindow* window) {
             lightPosition,
             1.0f,
             0.09f,
-            0.032f
+            0.032f 
         }});
 
-        renderer.render(objectTransform, backpack);
-        renderer.render({lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)}, cube);
-
+        renderer.run(ecs);
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
