@@ -33,15 +33,8 @@ void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
 void openGlLogic(GLFWwindow* window) {
     Shader objectVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
     Shader objectFragmentShader("/home/maxwell/OpenGLProject/shaders/objFrag.glsl", GL_FRAGMENT_SHADER);
-
-    Shader lightVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
-    Shader lightFragmentShader("/home/maxwell/OpenGLProject/shaders/lightFrag.glsl", GL_FRAGMENT_SHADER);
-
     ShaderProgram objectShader;
     objectShader.attach(std::move(objectVertexShader)).attach(std::move(objectFragmentShader)).link();
-    ShaderProgram lightShader;
-    lightShader.attach(std::move(lightVertexShader)).attach(std::move(lightFragmentShader)).link();
-
     
     glEnable(GL_DEPTH_TEST);
 
@@ -65,6 +58,7 @@ void openGlLogic(GLFWwindow* window) {
     DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
 
     ECS ecs;
+    ecs.addSystem(&renderer);
     EntityId object = ecs.createEntity();
     EntityId light = ecs.createEntity();
 
@@ -128,8 +122,8 @@ void openGlLogic(GLFWwindow* window) {
             0.032f 
         }});
 
-        renderer.run(ecs);
-        
+        ecs.runSystems();
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

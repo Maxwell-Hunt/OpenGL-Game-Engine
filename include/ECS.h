@@ -72,10 +72,25 @@ public:
         return true;
     }
 
+    void addSystem(System* system) {
+        systems.insert(system);
+    }
+
+    void removeSystem(System* system) {
+        systems.erase(system);
+    }
+
+    void runSystems() {
+        for(System* system : systems) {
+            system->run(*this);
+        }
+    }
+
 private:
     EntityId nextEntity = 0;
     std::unordered_map<std::type_index, std::unique_ptr<ComponentGroupBase>> mGroups;
     std::unordered_map<EntityId, std::unordered_set<std::type_index>> mEntityComponents;
+    std::unordered_set<System*> systems;
 };
 
 /*
