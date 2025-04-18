@@ -5,12 +5,12 @@
 
 class ModelFactory {
 public:
-    static DrawableComponent loadModel(const std::filesystem::path& path);
+    static DrawableComponent loadModel(const std::filesystem::path& path, LightingType lightingType = LightingType::Phong);
 };
 
 class CubeModelFactory {
 public:
-    static DrawableComponent createCube(const Color& color);
+    static DrawableComponent createCube(const Color& color, LightingType lightingType = LightingType::Phong);
 };
 
 #endif

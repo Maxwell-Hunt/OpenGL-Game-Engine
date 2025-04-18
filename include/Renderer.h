@@ -9,16 +9,18 @@
 
 class RenderSystem : public System {
 public:
-    RenderSystem(const Camera& camera, const ShaderProgram& shader, const DirectionalLight& skyLight, const std::vector<PointLight>& pointLights);
+    RenderSystem(const Camera& camera, const DirectionalLight& skyLight, const std::vector<PointLight>& pointLights);
     virtual ~RenderSystem() override = default;
     virtual void run(ECS& ecs) override;
 private:
-    void render(const Transform& transform, const IDrawable& drawable) const;
+    void renderNoLighting(const Transform& transform, const IDrawable& drawable) const;
+    void renderPhong(const Transform& transform, const IDrawable& drawable) const;
 
     const Camera& mCamera;
-    const ShaderProgram& mShader;
     const DirectionalLight& mSkyLight;
     const std::vector<PointLight>& mPointLights;
+    ShaderProgram mPhongShader;
+    ShaderProgram mNoLightShader;
 };
 
 #endif

@@ -2,10 +2,15 @@
 
 #include <iostream>
 
-Model::Model(std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures) :
+Model::Model(LightingType lightingType, std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures) :
+    mLightingType{lightingType},
     mDirectory{std::move(directory)},
     mMeshes{std::move(meshes)},
     mTextures{std::move(textures)} {}
+
+LightingType Model::getLightingType() const {
+    return mLightingType;
+}
 
 void Model::draw(const ShaderProgram& shader) const {
     for(const Mesh& mesh : mMeshes) {
@@ -49,10 +54,13 @@ void Model::drawMesh(const ShaderProgram& shader, const Mesh& mesh) const {
     glBindVertexArray(0);
 }
 
-CubeModel::CubeModel(unsigned int VAO, unsigned int VBO, const Color& color) : 
+CubeModel::CubeModel(LightingType lightingType, unsigned int VAO, unsigned int VBO, const Color& color) : 
+    mLightingType{lightingType},
     mVAO{VAO},
     mVBO{VBO},
     mColor{color} {}
+
+LightingType CubeModel::getLightingType() const { return mLightingType; }
 
 void CubeModel::draw(const ShaderProgram &shader) const {
     shader.setFloat("color", mColor.r, mColor.g, mColor.b);
@@ -64,6 +72,10 @@ void CubeModel::draw(const ShaderProgram &shader) const {
 
 DrawableComponent::DrawableComponent(std::unique_ptr<IDrawable>&& drawable) :
     mDrawable{std::move(drawable)} {}
+
+LightingType DrawableComponent::getLightingType() const {
+    return mDrawable->getLightingType();
+}
 
 void DrawableComponent::draw(const ShaderProgram& shader) const {
     mDrawable->draw(shader);

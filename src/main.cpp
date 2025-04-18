@@ -31,11 +31,6 @@ void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void openGlLogic(GLFWwindow* window) {
-    Shader objectVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
-    Shader objectFragmentShader("/home/maxwell/OpenGLProject/shaders/objFrag.glsl", GL_FRAGMENT_SHADER);
-    ShaderProgram objectShader;
-    objectShader.attach(std::move(objectVertexShader)).attach(std::move(objectFragmentShader)).link();
-    
     glEnable(GL_DEPTH_TEST);
 
     Camera camera(800.0f / 600.0f);
@@ -52,9 +47,9 @@ void openGlLogic(GLFWwindow* window) {
     std::vector<PointLight> pointLights;
     DirectionalLight skyLight;
 
-    RenderSystem renderer(camera, objectShader, skyLight, pointLights);
+    RenderSystem renderer(camera, skyLight, pointLights);
 
-    DrawableComponent cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f});
+    DrawableComponent cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f}, LightingType::NoLighting);
     DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
 
     ECS ecs;

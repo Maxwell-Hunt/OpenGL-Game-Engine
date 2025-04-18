@@ -29,9 +29,9 @@ struct PointLight : public Light {
 };
 
 enum class LightingType {
+    NoLighting,
     Flat,
-    Diffuse,
-    Complete
+    Phong
 };
 
 template <typename T>

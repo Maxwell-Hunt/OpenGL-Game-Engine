@@ -119,7 +119,7 @@ std::vector<Mesh> processNode(aiNode* root, const aiScene* scene, const std::fil
 
 }
     
-DrawableComponent ModelFactory::loadModel(const std::filesystem::path& path) {
+DrawableComponent ModelFactory::loadModel(const std::filesystem::path& path, LightingType lightingType) {
     std::filesystem::path directory = path.parent_path();
     std::cout << "Loading model from: " << path << '\n';
     Assimp::Importer importer;
@@ -132,11 +132,11 @@ DrawableComponent ModelFactory::loadModel(const std::filesystem::path& path) {
 
     std::vector<Texture> textures = loadTextures(directory, scene);
     std::vector<Mesh> meshes = processNode(scene->mRootNode, scene, directory, textures);
-    auto model = std::unique_ptr<Model>(new Model(std::move(directory), std::move(meshes), std::move(textures)));
+    auto model = std::unique_ptr<Model>(new Model(lightingType, std::move(directory), std::move(meshes), std::move(textures)));
     return DrawableComponent(std::move(model));
 }
 
-DrawableComponent CubeModelFactory::createCube(const Color &color) { 
+DrawableComponent CubeModelFactory::createCube(const Color &color, LightingType lightingType) { 
     const float vertices[] = {
         // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
@@ -199,6 +199,6 @@ DrawableComponent CubeModelFactory::createCube(const Color &color) {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
-    auto model = std::unique_ptr<IDrawable>(new CubeModel(VAO, VBO, color));
+    auto model = std::unique_ptr<IDrawable>(new CubeModel(lightingType, VAO, VBO, color));
     return DrawableComponent(std::move(model));
 }

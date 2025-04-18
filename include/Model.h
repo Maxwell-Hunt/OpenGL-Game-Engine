@@ -14,6 +14,7 @@ class IDrawable {
 public:
     virtual ~IDrawable() = default;
     virtual void draw(const ShaderProgram& shader) const = 0; 
+    virtual LightingType getLightingType() const = 0;
 };
 
 class Model : public IDrawable {
@@ -21,10 +22,12 @@ friend class ModelFactory;
 public:
     virtual ~Model() override = default;
     virtual void draw(const ShaderProgram& shader) const override;
+    virtual LightingType getLightingType() const override;
 private:
-    Model(std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures);
+    Model(LightingType lightingType, std::filesystem::path&& directory, std::vector<Mesh>&& meshes, std::vector<Texture>&& textures);
     void drawMesh(const ShaderProgram& shader, const Mesh& mesh) const;
 
+    LightingType mLightingType;
     std::filesystem::path mDirectory;
     std::vector<Mesh> mMeshes;
     std::vector<Texture> mTextures;
@@ -35,8 +38,11 @@ friend class CubeModelFactory;
 public:
     virtual ~CubeModel() override = default;
     virtual void draw(const ShaderProgram& shader) const override;
+    virtual LightingType getLightingType() const override;
 private:
-    CubeModel(unsigned int VAO, unsigned int VBO, const Color& color);
+    CubeModel(LightingType lightingType, unsigned int VAO, unsigned int VBO, const Color& color);
+
+    LightingType mLightingType;
     unsigned int mVAO;
     unsigned int mVBO;
     Color mColor;
@@ -47,6 +53,7 @@ public:
     DrawableComponent(std::unique_ptr<IDrawable>&& drawable);
     virtual ~DrawableComponent() override = default;
     virtual void draw(const ShaderProgram& shader) const override;
+    virtual LightingType getLightingType() const override;
 private:
     std::unique_ptr<IDrawable> mDrawable;
 };
