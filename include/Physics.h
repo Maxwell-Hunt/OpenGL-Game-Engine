@@ -3,6 +3,8 @@
 
 #include "ECS.h"
 #include "Transform.h"
+#include "Collision.h"
+
 #include <glm/glm.hpp>
 
 struct PhysicsComponent {
@@ -10,12 +12,13 @@ struct PhysicsComponent {
     glm::vec3 acceleration;
 };
 
-class PhysicsSystem : public System {
+class PhysicsSystem : public System, public CollisionSystem::Callback {
 public:
     virtual ~PhysicsSystem() override = default;
-    virtual void run(ECS& ecs, float deltaTime) override; 
+    virtual void run(ECS& ecs, float deltaTime) override;
 private:
-    void updatePhys(Transform& transform, PhysicsComponent& phys, float deltaTime);
+    virtual void onCollision(ECS& ecs, EntityId entityA, EntityId entityB) override;
+    void updatePhys(Transform& transform, PhysicsComponent& phys, float deltaTime) const;
 };
 
 #endif

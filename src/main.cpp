@@ -39,11 +39,15 @@ void openGlLogic(GLFWwindow* window) {
     
     RenderSystem renderer;
     PhysicsSystem physics;
+    CollisionSystem collisions;
+
+    collisions.registerCallback(&physics);
 
     ECS ecs;
     ecs.addSystem(&renderer);
     ecs.addSystem(&cameraController);
     ecs.addSystem(&physics);
+    ecs.addSystem(&collisions);
     
     double prevTime = glfwGetTime();
 
@@ -52,11 +56,15 @@ void openGlLogic(GLFWwindow* window) {
 
     EntityId mainBall = ecs.createEntity();
     ecs.addComponentToEntity(mainBall, ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/sphere/sphere.obj"));
-    ecs.addComponentToEntity(mainBall, Transform(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 3.14f, 0.0f), glm::vec3(1.0f)));
-    ecs.addComponentToEntity(mainBall, PhysicsComponent(glm::vec3(0.0f), glm::vec3(0.0f, -3.0f, 0.0f)));
+    ecs.addComponentToEntity(mainBall, Transform(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f)));
+    ecs.addComponentToEntity(mainBall, PhysicsComponent(glm::vec3(0.0f), glm::vec3(0.0f, -3.5f, 0.0f)));
+    ecs.addComponentToEntity(mainBall, SphereCollider(1.0f));
 
     EntityId skyLight = ecs.createEntity();
     ecs.addComponentToEntity(skyLight, DirectionalLight(Light(glm::vec3(1.0f), 0.5f, 0.7f, 0.7f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+    EntityId platform = ecs.createEntity();
+    ecs.addComponentToEntity(platform, XZPlaneCollider(-2.0f));
 
     Color backgroundColor = {0.203f, 0.203f, 0.203f};
     while(!glfwWindowShouldClose(window)) {
