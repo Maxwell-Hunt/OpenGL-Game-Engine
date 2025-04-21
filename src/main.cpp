@@ -10,15 +10,13 @@
 #include <sstream>
 #include <string>
 
-#include "Shader.h"
 #include "Camera.h"
 #include "InputManager.h"
 
-#include "Texture.h"
-#include "Mesh.h"
 #include "ModelFactory.h"
 
 #include "Renderer.h"
+#include "Physics.h"
 
 void handleExit(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -40,61 +38,25 @@ void openGlLogic(GLFWwindow* window) {
     glfwSetCursorPosCallback(window, InputManager::mouseMoveCallback);
     
     RenderSystem renderer;
-
-    DrawableComponent cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f}, LightingType::NoLighting);
-    DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/sphere/sphere.obj");
+    PhysicsSystem physics;
 
     ECS ecs;
     ecs.addSystem(&renderer);
     ecs.addSystem(&cameraController);
+    ecs.addSystem(&physics);
+    
+    double prevTime = glfwGetTime();
 
     EntityId mainCamera = ecs.createEntity();
-    EntityId object = ecs.createEntity();
-    EntityId light = ecs.createEntity();
-    EntityId topLight = ecs.createEntity();
-
-    Transform objectTransform = {
-        glm::vec3(0.0f),
-        glm::vec3(0.0f, glfwGetTime(), 0.0f),
-        glm::vec3(1.0f)
-    };
-
-    float radius = 6.0f;
-    glm::vec3 lightPosition(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
-    Transform lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(0.5f)};
-
-    glm::vec3 lightDirection(0.0f, 1.0f, 0.0f);
-    glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
-    DirectionalLight skyLight = {
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        0.1f,
-        0.5f,
-        0.5f,
-        lightDirection
-    };
-
-    PointLight pointLight = {
-        pointLightColor,
-        0.02f,
-        1.0f,
-        1.0f,
-        1.0f,
-        0.09f,
-        0.032f 
-    };
-
     ecs.addComponentToEntity(mainCamera, std::move(camera));
 
-    ecs.addComponentToEntity(object, std::move(objectTransform));
-    ecs.addComponentToEntity(object, std::move(backpack));
+    EntityId mainBall = ecs.createEntity();
+    ecs.addComponentToEntity(mainBall, ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/sphere/sphere.obj"));
+    ecs.addComponentToEntity(mainBall, Transform(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 3.14f, 0.0f), glm::vec3(1.0f)));
+    ecs.addComponentToEntity(mainBall, PhysicsComponent(glm::vec3(0.0f), glm::vec3(0.0f, -3.0f, 0.0f)));
 
-    ecs.addComponentToEntity(light, std::move(cube));
-    ecs.addComponentToEntity(light, std::move(lightTransform));
-    ecs.addComponentToEntity(light, std::move(pointLight));
-
-    ecs.addComponentToEntity(topLight, std::move(skyLight));
-
-    double prevTime = glfwGetTime();
+    EntityId skyLight = ecs.createEntity();
+    ecs.addComponentToEntity(skyLight, DirectionalLight(Light(glm::vec3(1.0f), 0.5f, 0.7f, 0.7f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     Color backgroundColor = {0.203f, 0.203f, 0.203f};
     while(!glfwWindowShouldClose(window)) {
