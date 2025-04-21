@@ -6,6 +6,7 @@
 #include <ranges>
 
 #include "Light.h"
+#include "Transform.h"
 
 /*
 These classes serve to encapsulate the process of setting up Shaders and Shader Programs
@@ -28,6 +29,11 @@ Potential Fixes:
     actually called we are attached to at least one shader program. It would make sense that the ShaderProgram
     should release ownership when linking is done.
 */
+
+struct PointLightComponents {
+    PointLight pointLight;
+    Transform transform;
+};
 
 class Shader {
 public:
@@ -69,12 +75,12 @@ public:
     void setMat4(std::string_view name, float* value, bool transpose = false) const;
 
     void setDirectionalLight(std::string_view name, DirectionalLight value) const;
-    void setPointLight(std::string_view name, PointLight value) const;
+    void setPointLight(std::string_view name, PointLightComponents value) const;
 
-    void setPointLights(std::string_view name, const PointLightRange auto&  values) const {
+    void setPointLights(std::string_view name, const std::vector<PointLightComponents>& values) const {
         std::string s(name);
         int i = 0;
-        for(const PointLight& value : values) {
+        for(const PointLightComponents& value : values) {
             std::string indexedName = s + '[' + std::to_string(i) + ']';
             setPointLight(indexedName, value);
             i++;

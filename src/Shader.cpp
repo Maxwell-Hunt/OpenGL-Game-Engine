@@ -137,11 +137,11 @@ void ShaderProgram::setDirectionalLight(std::string_view name, DirectionalLight 
     setFloat(s+".direction", value.direction[0], value.direction[1], value.direction[2]);
 }
 
-void ShaderProgram::setPointLight(std::string_view name, PointLight value) const {
+void ShaderProgram::setPointLight(std::string_view name, PointLightComponents value) const {
     std::string s(name);
-    setLight(s, value);
-    setFloat(s+".position", value.position[0], value.position[1], value.position[2]);
-    setFloat(s+".kc", value.kc);
-    setFloat(s+".kl", value.kl);
-    setFloat(s+".kq", value.kq);
+    setLight(s, value.pointLight);
+    setFloat(s+".position", value.transform.position[0], value.transform.position[1], value.transform.position[2]);
+    setFloat(s+".kc", value.pointLight.kc);
+    setFloat(s+".kl", value.pointLight.kl);
+    setFloat(s+".kq", value.pointLight.kq);
 }

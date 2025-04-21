@@ -22,7 +22,6 @@ struct DirectionalLight : public Light {
 };
 
 struct PointLight : public Light {
-    glm::vec3 position;
     float kc;
     float kl;
     float kq;
@@ -32,6 +31,11 @@ enum class LightingType {
     NoLighting,
     Flat,
     Phong
+};
+
+struct LightContainer {
+    DirectionalLight skyLight;
+    std::vector<PointLight> pointLights;
 };
 
 template <typename T>

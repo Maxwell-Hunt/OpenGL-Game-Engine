@@ -39,10 +39,7 @@ void openGlLogic(GLFWwindow* window) {
     InputManager::init(window);
     glfwSetCursorPosCallback(window, InputManager::mouseMoveCallback);
     
-    std::vector<PointLight> pointLights;
-    DirectionalLight skyLight;
-
-    RenderSystem renderer(skyLight, pointLights);
+    RenderSystem renderer;
 
     DrawableComponent cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f}, LightingType::NoLighting);
     DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/sphere/sphere.obj");
@@ -54,6 +51,7 @@ void openGlLogic(GLFWwindow* window) {
     EntityId mainCamera = ecs.createEntity();
     EntityId object = ecs.createEntity();
     EntityId light = ecs.createEntity();
+    EntityId topLight = ecs.createEntity();
 
     Transform objectTransform = {
         glm::vec3(0.0f),
@@ -65,6 +63,26 @@ void openGlLogic(GLFWwindow* window) {
     glm::vec3 lightPosition(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
     Transform lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(0.5f)};
 
+    glm::vec3 lightDirection(0.0f, 1.0f, 0.0f);
+    glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
+    DirectionalLight skyLight = {
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        0.1f,
+        0.5f,
+        0.5f,
+        lightDirection
+    };
+
+    PointLight pointLight = {
+        pointLightColor,
+        0.02f,
+        1.0f,
+        1.0f,
+        1.0f,
+        0.09f,
+        0.032f 
+    };
+
     ecs.addComponentToEntity(mainCamera, std::move(camera));
 
     ecs.addComponentToEntity(object, std::move(objectTransform));
@@ -72,6 +90,9 @@ void openGlLogic(GLFWwindow* window) {
 
     ecs.addComponentToEntity(light, std::move(cube));
     ecs.addComponentToEntity(light, std::move(lightTransform));
+    ecs.addComponentToEntity(light, std::move(pointLight));
+
+    ecs.addComponentToEntity(topLight, std::move(skyLight));
 
     double prevTime = glfwGetTime();
 
@@ -85,28 +106,6 @@ void openGlLogic(GLFWwindow* window) {
         prevTime = time;
         handleExit(window);
         
-        glm::vec3 lightDirection(0.0f, 1.0f, 0.0f);
-        glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
-
-        skyLight = {
-            glm::vec3(1.0f, 1.0f, 1.0f),
-            0.1f,
-            0.5f,
-            0.5f,
-            lightDirection
-        };
-
-        pointLights = std::vector<PointLight>({{
-            pointLightColor,
-            0.02f,
-            1.0f,
-            1.0f,
-            lightPosition,
-            1.0f,
-            0.09f,
-            0.032f 
-        }});
-
         ecs.runSystems(deltaTime);
 
         glfwSwapBuffers(window);
