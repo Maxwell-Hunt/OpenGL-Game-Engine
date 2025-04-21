@@ -34,11 +34,6 @@ void openGlLogic(GLFWwindow* window) {
     glEnable(GL_DEPTH_TEST);
 
     Camera camera(800.0f / 600.0f);
-    camera.position = glm::vec3(0.0f, 0.0f, 5.0f);
-    camera.forward = glm::vec3(0.0f, 0.0f, -1.0f);
-    camera.yaw = -90.f;
-    camera.pitch = 0.0f;
-
     CameraController cameraController;
 
     InputManager::init(window);
@@ -89,15 +84,6 @@ void openGlLogic(GLFWwindow* window) {
         double deltaTime = time - prevTime;
         prevTime = time;
         handleExit(window);
-
-        // objectTransform = {
-        //     glm::vec3(0.0f),
-        //     glm::vec3(0.0f, glfwGetTime(), 0.0f),
-        //     glm::vec3(1.0f)
-        // };
-
-        // lightPosition = glm::vec3(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
-        // lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)};
         
         glm::vec3 lightDirection(0.0f, 1.0f, 0.0f);
         glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
