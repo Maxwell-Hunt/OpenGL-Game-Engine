@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "InputManager.h"
+#include "ECS.h"
 
 class Camera {
 public:
@@ -21,13 +22,13 @@ private:
     const static glm::vec3 up;
 };
 
-class CameraController {
+class CameraController : public System {
 public:
-    CameraController(Camera& camera);
-
-    void update(float deltaTime);
+    CameraController();
+    void run(ECS& ecs, float deltaTime);
 private:
-    Camera& camera;
+    void update(float deltaTime, Camera& camera);
+
     glm::vec3 velocity;
     float speed;
 

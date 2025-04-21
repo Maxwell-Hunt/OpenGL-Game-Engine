@@ -20,15 +20,25 @@ glm::vec3 Camera::getRight() const {
     return glm::normalize(glm::cross(forward, up));
 }
 
-CameraController::CameraController(Camera &camera) :
-    camera{camera},
+CameraController::CameraController() :
     velocity{0.0f},
     speed{10.0f},
     lastX{400.0f},
     lastY{300.0f},
     firstMouse{true} {}
 
-void CameraController::update(float deltaTime) {
+void CameraController::run(ECS& ecs, float deltaTime) {
+    EntityId cameraEntity = 0;
+    for(EntityId entity = 0;entity < ecs.numEntities();entity++) {
+        if(ecs.hasComponents<Camera>(entity)) {
+            cameraEntity = entity;
+        }
+    }
+
+    update(deltaTime, ecs.getComponent<Camera>(cameraEntity));
+}
+
+void CameraController::update(float deltaTime, Camera& camera) {
     if(InputManager::isPressed(GLFW_KEY_W)) {
         camera.position += camera.forward * speed * deltaTime;
     }

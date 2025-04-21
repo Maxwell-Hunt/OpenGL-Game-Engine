@@ -39,7 +39,7 @@ void openGlLogic(GLFWwindow* window) {
     camera.yaw = -90.f;
     camera.pitch = 0.0f;
 
-    CameraController cameraController(camera);
+    CameraController cameraController;
 
     InputManager::init(window);
     glfwSetCursorPosCallback(window, InputManager::mouseMoveCallback);
@@ -47,13 +47,16 @@ void openGlLogic(GLFWwindow* window) {
     std::vector<PointLight> pointLights;
     DirectionalLight skyLight;
 
-    RenderSystem renderer(camera, skyLight, pointLights);
+    RenderSystem renderer(skyLight, pointLights);
 
     DrawableComponent cube = CubeModelFactory::createCube({1.0f, 0.0f, 0.0f}, LightingType::NoLighting);
-    DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/backpack/backpack.obj");
+    DrawableComponent backpack = ModelFactory::loadModel("/home/maxwell/OpenGLProject/assets/sphere/sphere.obj");
 
     ECS ecs;
     ecs.addSystem(&renderer);
+    ecs.addSystem(&cameraController);
+
+    EntityId mainCamera = ecs.createEntity();
     EntityId object = ecs.createEntity();
     EntityId light = ecs.createEntity();
 
@@ -65,18 +68,21 @@ void openGlLogic(GLFWwindow* window) {
 
     float radius = 6.0f;
     glm::vec3 lightPosition(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
-    Transform lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)};
+    Transform lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(0.5f)};
 
-    ecs.addComponentToEntity(object, &objectTransform);
-    ecs.addComponentToEntity(object, &backpack);
+    ecs.addComponentToEntity(mainCamera, std::move(camera));
 
-    ecs.addComponentToEntity(light, &cube);
-    ecs.addComponentToEntity(light, &lightTransform);
+    ecs.addComponentToEntity(object, std::move(objectTransform));
+    ecs.addComponentToEntity(object, std::move(backpack));
+
+    ecs.addComponentToEntity(light, std::move(cube));
+    ecs.addComponentToEntity(light, std::move(lightTransform));
 
     double prevTime = glfwGetTime();
 
+    Color backgroundColor = {0.203f, 0.203f, 0.203f};
     while(!glfwWindowShouldClose(window)) {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double time = glfwGetTime();
@@ -84,18 +90,16 @@ void openGlLogic(GLFWwindow* window) {
         prevTime = time;
         handleExit(window);
 
-        cameraController.update(deltaTime);
+        // objectTransform = {
+        //     glm::vec3(0.0f),
+        //     glm::vec3(0.0f, glfwGetTime(), 0.0f),
+        //     glm::vec3(1.0f)
+        // };
 
-        objectTransform = {
-            glm::vec3(0.0f),
-            glm::vec3(0.0f, glfwGetTime(), 0.0f),
-            glm::vec3(1.0f)
-        };
-
-        lightPosition = glm::vec3(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
-        lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)};
+        // lightPosition = glm::vec3(radius * cos(glfwGetTime()), 0.0f, radius * sin(glfwGetTime()));
+        // lightTransform  = {lightPosition, glm::vec3(0.0f), glm::vec3(1.0f)};
         
-        glm::vec3 lightDirection(0.0f, -1.0f, 0.0f);
+        glm::vec3 lightDirection(0.0f, 1.0f, 0.0f);
         glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
 
         skyLight = {
@@ -117,7 +121,7 @@ void openGlLogic(GLFWwindow* window) {
             0.032f 
         }});
 
-        ecs.runSystems();
+        ecs.runSystems(deltaTime);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

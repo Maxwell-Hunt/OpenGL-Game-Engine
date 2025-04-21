@@ -5,8 +5,7 @@
 
 #include <iostream>
 
-RenderSystem::RenderSystem(const Camera& camera, const DirectionalLight& skyLight, const std::vector<PointLight>& pointLights) :
-    mCamera{camera},
+RenderSystem::RenderSystem(const DirectionalLight& skyLight, const std::vector<PointLight>& pointLights) :
     mSkyLight{skyLight},
     mPointLights{pointLights} {
         Shader phongVertexShader("/home/maxwell/OpenGLProject/shaders/vert.glsl", GL_VERTEX_SHADER);
@@ -18,13 +17,14 @@ RenderSystem::RenderSystem(const Camera& camera, const DirectionalLight& skyLigh
         mNoLightShader.attach(std::move(noLightingVertexShader)).attach(std::move(noLightingFragmentShader)).link();
     }
 
-void RenderSystem::run(ECS& ecs) {
+void RenderSystem::run(ECS& ecs, float deltaTime) {
     std::vector<EntityId> noLightingObjects;
     std::vector<EntityId> phongShadedObjects;
+    EntityId cameraEntity = 0;
     for(EntityId entity = 0;entity < ecs.numEntities();entity++) {
         if(ecs.hasComponents<Transform, DrawableComponent>(entity)) {
-            DrawableComponent* model = ecs.getComponent<DrawableComponent>(entity);
-            switch(model->getLightingType()) {
+            DrawableComponent& model = ecs.getComponent<DrawableComponent>(entity);
+            switch(model.getLightingType()) {
                 case LightingType::NoLighting:
                     noLightingObjects.push_back(entity);
                     break;
@@ -36,27 +36,32 @@ void RenderSystem::run(ECS& ecs) {
                     break;
             }
         }
+
+        if(ecs.hasComponents<Camera>(entity)) {
+            cameraEntity = entity;
+        }
     }
 
+    Camera& camera = ecs.getComponent<Camera>(cameraEntity);
     mPhongShader.use();
     for(EntityId entity : phongShadedObjects) {
-        Transform* transform = ecs.getComponent<Transform>(entity);
-        DrawableComponent* model = ecs.getComponent<DrawableComponent>(entity);
-        renderPhong(*transform, *model);
+        Transform& transform = ecs.getComponent<Transform>(entity);
+        DrawableComponent& model = ecs.getComponent<DrawableComponent>(entity);
+        renderPhong(transform, model, camera);
     }
 
     mNoLightShader.use();
     for(EntityId entity : noLightingObjects) {
-        Transform* transform = ecs.getComponent<Transform>(entity);
-        DrawableComponent* model = ecs.getComponent<DrawableComponent>(entity);
-        renderNoLighting(*transform, *model);
+        Transform& transform = ecs.getComponent<Transform>(entity);
+        DrawableComponent& model = ecs.getComponent<DrawableComponent>(entity);
+        renderNoLighting(transform, model, camera);
     }
 }
 
-void RenderSystem::renderNoLighting(const Transform& transform, const IDrawable& drawable) const {
+void RenderSystem::renderNoLighting(const Transform& transform, const IDrawable& drawable, const Camera& camera) const {
     glm::mat4 model = transform.getModel();
-    glm::mat4 view = mCamera.view();
-    glm::mat4 projection = mCamera.perspective();
+    glm::mat4 view = camera.view();
+    glm::mat4 projection = camera.perspective();
 
     glm::mat4 modelViewMatrix = view * model;
     glm::mat4 modelViewProjectionMatrix = projection * modelViewMatrix;
@@ -69,10 +74,10 @@ void RenderSystem::renderNoLighting(const Transform& transform, const IDrawable&
     drawable.draw(mNoLightShader);
 }
 
-void RenderSystem::renderPhong(const Transform& transform, const IDrawable& drawable) const {
+void RenderSystem::renderPhong(const Transform& transform, const IDrawable& drawable, const Camera& camera) const {
     glm::mat4 model = transform.getModel();
-    glm::mat4 view = mCamera.view();
-    glm::mat4 projection = mCamera.perspective();
+    glm::mat4 view = camera.view();
+    glm::mat4 projection = camera.perspective();
 
     glm::mat4 modelViewMatrix = view * model;
     glm::mat4 modelViewProjectionMatrix = projection * modelViewMatrix;

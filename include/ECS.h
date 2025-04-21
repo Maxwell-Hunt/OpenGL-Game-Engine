@@ -1,3 +1,6 @@
+#ifndef __ECS__
+#define __ECS__
+
 #include <typeindex>
 #include <memory>
 #include <unordered_map>
@@ -13,15 +16,15 @@ public:
 template <typename T>
 class ComponentGroup : public ComponentGroupBase {
 public:
-    void addToEntity(EntityId entity, T* component) {
-        mData[entity] = component;
+    void addToEntity(EntityId entity, T&& component) {
+        mData.insert({entity, std::move(component)});
     }
 
-    T* getComponent(EntityId entity) {
+    T& getComponent(EntityId entity) {
         return mData.at(entity);
     }
 private:
-    std::unordered_map<EntityId, T*> mData;
+    std::unordered_map<EntityId, T> mData;
 };
 
 class ECS;
@@ -29,7 +32,7 @@ class ECS;
 class System {
 public:
     virtual ~System() = default;
-    virtual void run(ECS& ecs) = 0;
+    virtual void run(ECS& ecs, float deltaTime) = 0;
 };
 
 class ECS {
@@ -43,17 +46,17 @@ public:
     }
 
     template <typename T>
-    void addComponentToEntity(EntityId entity, T* component) {
+    void addComponentToEntity(EntityId entity, T&& component) {
         std::type_index index = std::type_index(typeid(T));
         if(!mGroups.count(index)) {
             mGroups[index] = std::unique_ptr<ComponentGroupBase>(new ComponentGroup<T>());
         }
-        static_cast<ComponentGroup<T>*>(mGroups[index].get())->addToEntity(entity, component);
+        static_cast<ComponentGroup<T>*>(mGroups[index].get())->addToEntity(entity, std::move(component));
         mEntityComponents[entity].insert(index);
     }
 
     template <typename T>
-    T* getComponent(EntityId entity) {
+    T& getComponent(EntityId entity) {
         std::type_index index = std::type_index(typeid(T));
         return static_cast<ComponentGroup<T>*>(mGroups[index].get())->getComponent(entity);
     }
@@ -80,9 +83,9 @@ public:
         systems.erase(system);
     }
 
-    void runSystems() {
+    void runSystems(float deltaTime) {
         for(System* system : systems) {
-            system->run(*this);
+            system->run(*this, deltaTime);
         }
     }
 
@@ -92,6 +95,8 @@ private:
     std::unordered_map<EntityId, std::unordered_set<std::type_index>> mEntityComponents;
     std::unordered_set<System*> systems;
 };
+
+#endif
 
 /*
 -----------------------------COMMENTS-------------------------------

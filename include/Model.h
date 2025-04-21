@@ -52,6 +52,10 @@ class DrawableComponent : public IDrawable {
 public:
     DrawableComponent(std::unique_ptr<IDrawable>&& drawable);
     virtual ~DrawableComponent() override = default;
+    DrawableComponent(const DrawableComponent& other) = delete;
+    DrawableComponent(DrawableComponent&& other) = default;
+    DrawableComponent& operator=(const DrawableComponent& other) = delete;
+    DrawableComponent& operator=(DrawableComponent&& other) = default;
     virtual void draw(const ShaderProgram& shader) const override;
     virtual LightingType getLightingType() const override;
 private:
