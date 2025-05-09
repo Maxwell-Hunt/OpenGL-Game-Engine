@@ -61,10 +61,12 @@ void openGlLogic(GLFWwindow* window) {
     ecs.addComponentToEntity(mainBall, SphereCollider(1.0f));
 
     EntityId skyLight = ecs.createEntity();
-    ecs.addComponentToEntity(skyLight, DirectionalLight(Light(glm::vec3(1.0f), 0.5f, 0.7f, 0.7f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    ecs.addComponentToEntity(skyLight, DirectionalLight(Light(glm::vec3(1.0f), 0.5f, 0.7f, 0.7f), glm::vec3(1.0f, -1.0f, 0.0f)));
 
     EntityId platform = ecs.createEntity();
-    ecs.addComponentToEntity(platform, XZPlaneCollider(-2.0f));
+    ecs.addComponentToEntity(platform, CubeModelFactory::createCube({1.0f, 0.0f, 0.0f}));
+    ecs.addComponentToEntity(platform, Transform(glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(0.0f), glm::vec3(10.0f, 1.0f, 10.0f)));
+    ecs.addComponentToEntity(platform, XZPlaneCollider(-1.5f));
 
     Color backgroundColor = {0.203f, 0.203f, 0.203f};
     while(!glfwWindowShouldClose(window)) {

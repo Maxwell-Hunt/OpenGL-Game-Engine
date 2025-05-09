@@ -11,11 +11,10 @@ void CollisionSystem::run(ECS& ecs, float deltaTime) {
                 Transform& sphereTransform = ecs.getComponent<Transform>(entityA);
                 SphereCollider& sphereCollider = ecs.getComponent<SphereCollider>(entityA);
                 XZPlaneCollider& planeCollider = ecs.getComponent<XZPlaneCollider>(entityB);
-                if(planeCollider.y >= sphereTransform.position.y - sphereCollider.radius &&
-                    planeCollider.y <= sphereTransform.position.y + sphereCollider.radius) {
+                if(planeCollider.y >= sphereTransform.position.y - sphereCollider.radius * sphereTransform.scale.y &&
+                    planeCollider.y <= sphereTransform.position.y + sphereCollider.radius * sphereTransform.scale.y) {
                          notifyCallbacks(ecs, entityA, entityB);
                 }
-                
             }
         }
     }
