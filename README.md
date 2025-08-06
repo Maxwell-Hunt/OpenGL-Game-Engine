@@ -34,5 +34,5 @@ To generate project files / make files for this project using CMake run the foll
 ```
 mkdir build
 cd build
-cmake ..build
+cmake ..
 ```
